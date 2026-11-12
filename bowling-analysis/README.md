@@ -229,7 +229,6 @@ never silently backfilled.
 
 ## Notes
 
-- The dashboard/frontend is not part of this repository yet.
 - Earlier estimator versions are kept for development history; their
   sections above describe what each one showed and where it failed.
 - No external API key is required.
