@@ -6,8 +6,9 @@ venv/
 .streamlit/
 .DS_Store
 
-# Raw data and generated artifacts are NOT bundled (code + methodology only).
-# Regenerate: python download_data.py && python run.py
+# Raw data and generated artifacts are NOT bundled (code + methodology only),
+# except the frozen trained models. Regenerate: python download_data.py && python run.py
 data/ipl_json.zip
-outputs/
+outputs/*
+!outputs/frozen_models.joblib
 diagnostics/*.out
