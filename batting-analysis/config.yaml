@@ -1,0 +1,27 @@
+seasons: [2022, 2023, 2024, 2025, 2026]
+seed: 42
+cv_folds: 5
+bpi:
+  pressure_top_q: 0.25
+  normal_bottom_q: 0.40
+  sensitivity: [{top: 0.20, bottom: 0.45}, {top: 0.30, bottom: 0.35}]
+local_windows: {dot_balls: 12, wickets: 18}
+settledness_cap: 30
+ppf:
+  recency_weights: {"2025": 1.0, "2026": 1.0, "2022": 0.6, "2023": 0.6, "2024": 0.6}
+  shrinkage_k: 60
+  shrinkage_k_sensitivity: [40, 100]
+  bootstrap_resamples: 1000
+  ci: 0.90
+  high_conf_balls: 100
+funnel:
+  min_pressure_balls: 60
+  min_normal_balls: 200
+  active_seasons: [2025, 2026]
+  shortlist_size: 35
+  final_size: 10
+  role_quota: {openers: 3, middle: 4, finishers: 3}
+validation:
+  train_seasons: [2022, 2023, 2024]
+  test_seasons: [2025, 2026]
+  noise_corr_threshold: 0.2
