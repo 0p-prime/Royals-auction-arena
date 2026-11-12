@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {filterPlayers,rankPlayers,sourcePlayers,sortedPlayers,validateDataset} from '../web/core.js';
+const a={id:'A',name:'A',team:'Team',role:'middle',pressureBalls:80,eligible:true,shortlisted:false,top10:true,quota:false,uplift:2,pressure:1,overall:0,normal:-1,ciLow:-2,ciHigh:5,order:2};
+const b={...a,id:'B',name:'B',role:'opener',eligible:false,pressureBalls:20,uplift:8,order:1};
+test('filters combine pool role minimum and case-insensitive search',()=>{assert.deepEqual(filterPlayers([a,b],{role:'middle',search:'TEAM',pool:'eligible',minBalls:60}),[a]);assert.deepEqual(filterPlayers([a,b],{pool:'all',minBalls:40}),[a]);});
+test('ranked metrics do not mutate their input',()=>{const original=[a,b];assert.deepEqual(rankPlayers(original),[b,a]);assert.deepEqual(original,[a,b]);});
+test('bowling composite order is independent from runs ordering',()=>{const r=[{...a,order:1,uplift:-1},{...b,order:2,uplift:5}];assert.equal(sortedPlayers(r,'uplift','bowling')[0].order,1);assert.equal(sortedPlayers(r,'uplift','bowling','runs')[0].order,2);});
+test('all five bowling sources remain distinct',()=>{const lists={overall:[1],chasePressureLevel:[2],chasePressureUplift:[3],firstInningsPressureLevel:[4],firstInningsPressureUplift:[5]};const d={disciplines:{bowling:{lists}}};assert.deepEqual(sourcePlayers(d,'bowling','overall'),[1]);assert.deepEqual(sourcePlayers(d,'bowling','pressure','chase'),[2]);assert.deepEqual(sourcePlayers(d,'bowling','uplift','chase'),[3]);assert.deepEqual(sourcePlayers(d,'bowling','pressure','first'),[4]);assert.deepEqual(sourcePlayers(d,'bowling','uplift','first'),[5]);});
+test('missing metric never creates a fabricated value',()=>{assert.deepEqual(rankPlayers([{...a,uplift:null}]),[]);});
+test('schema rejects missing and non-finite metric data',()=>{assert.throws(()=>validateDataset({}));assert.throws(()=>validateDataset({schemaVersion:1,disciplines:{batting:{players:[{...a,uplift:Infinity}]}}}));assert.ok(validateDataset({schemaVersion:1,disciplines:{batting:{players:[a]}}}));});

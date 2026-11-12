@@ -1,0 +1,17 @@
+import {mkdir,copyFile,readFile,writeFile,rm} from 'node:fs/promises';
+import path from 'node:path';import {fileURLToPath} from 'node:url';
+import {validateDataset} from '../web/core.js';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const dataset=process.argv[2]||path.join(root,'private','dataset.json');
+const output=process.argv[3]||path.join(root,'dist');
+const contents=await readFile(dataset,'utf8');validateDataset(JSON.parse(contents));
+await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
+for(const file of ['index.html','app.js','core.js','style.css','assistant.js'])await copyFile(path.join(root,'web',file),path.join(output,file));
+await writeFile(path.join(output,'dataset.json'),contents);
+await copyFile(path.join(root,'DATA_ATTRIBUTION.txt'),path.join(output,'DATA_ATTRIBUTION.txt'));
+await mkdir(path.join(output,'assets'),{recursive:true});
+for(const f of ['arena-crest.svg','arena-logo.png','arena-icon.png'])await copyFile(path.join(root,'web/assets',f),path.join(output,'assets',f));
+await mkdir(path.join(output,'assets/fonts'),{recursive:true});
+for(const f of ['outfit-latin-wght-normal.woff2','plus-jakarta-sans-latin-wght-normal.woff2','OFL-Outfit.txt','OFL-PlusJakartaSans.txt'])await copyFile(path.join(root,'web/assets/fonts',f),path.join(output,'assets/fonts',f));
+await writeFile(path.join(output,'vercel.json'),JSON.stringify({cleanUrls:true,headers:[{source:'/(.*)',headers:[{key:'X-Content-Type-Options',value:'nosniff'},{key:'Content-Security-Policy',value:"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'"}]}]},null,2)+'\n');
+console.log(`Static website exported to ${output}; includes derived player summaries. Treat the entire directory as public.`);
