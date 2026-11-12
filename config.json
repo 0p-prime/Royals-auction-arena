@@ -1,0 +1,251 @@
+{
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "warmup_year": 2019,
+  "train_end": 2024,
+  "test_start": 2025,
+  "seed": 42,
+  "chase_mode": "intent",
+  "rate_scale": 12.0,
+  "innings_balls": 120,
+  "set_batter_balls": 20,
+  "recent_window": 12,
+  "powerplay_end": 6,
+  "death_start": 16,
+  "phase_weight": 1.25,
+  "pressure_quantile": 0.75,
+  "normal_quantile": 0.4,
+  "wicket_value": 20.0,
+  "wicket_value_sensitivity": [
+    10.0,
+    20.0,
+    30.0
+  ],
+  "shrinkage": 60.0,
+  "recent_weight": 1.0,
+  "old_weight": 0.6,
+  "min_pressure_balls": 60,
+  "min_normal_balls": 200,
+  "shortlist": 35,
+  "top_n": 10,
+  "min_pressure_rae": 0.0,
+  "bootstrap": 500,
+  "stability_warning": 0.2,
+  "confidence_high_matches": 30,
+  "confidence_med_matches": 15,
+  "confidence_high_pressure_balls": 200,
+  "confidence_med_pressure_balls": 100,
+  "max_iter": 100,
+  "min_profile_balls": 30,
+  "min_par_matches": 5,
+  "fallback_par": 170.0,
+  "roles": {
+    "powerplay": 3,
+    "middle": 3,
+    "death": 4
+  },
+  "use_role_quota": false,
+  "exclude_near_decided": false,
+  "fallback_batter_sr": 130.0,
+  "bootstrap_ci": [
+    0.025,
+    0.975
+  ],
+  "bootstrap_min_valid": 10,
+  "logistic_max_iter": 1000,
+  "xgb_depth": 3,
+  "xgb_learning_rate": 0.05,
+  "expected_max_leaves": 15,
+  "expected_l2": 10,
+  "correlation_min_bowlers": 3,
+  "sensitivity_min_cohort_balls": 30,
+  "spell_max_over_gap": 2,
+  "calibration_bins": 10,
+  "continuous_min_balls_full": 200,
+  "continuous_min_balls_half": 150,
+  "v4": {
+    "pressure_band_primary": [
+      0.6,
+      0.9
+    ],
+    "pressure_band_alt": [
+      0.7,
+      0.95
+    ],
+    "wicket_values": [
+      10,
+      15,
+      20,
+      25,
+      30
+    ],
+    "min_overall_balls": 200,
+    "min_pressure_balls": 60,
+    "min_normal_balls_uplift": 120,
+    "min_stratum_balls": 10,
+    "min_matches_uplift": 3,
+    "split_min_overall_balls": 150,
+    "split_min_pressure_balls": 40,
+    "split_min_uplift_pressure": 25,
+    "split_min_uplift_normal": 60,
+    "placebo_reps": 30,
+    "placebo_seed": 42,
+    "top_n": 10,
+    "win_rate_bins": [
+      0,
+      0.05,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      0.95,
+      1.0001
+    ],
+    "winprob": {
+      "wicket_buckets": [
+        [
+          0,
+          2
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          8,
+          9
+        ]
+      ],
+      "run_clip": 8,
+      "nmax": 300,
+      "balls": 120,
+      "wickets": 10,
+      "illegal_repeat_iters": 8,
+      "context_pseudo_deliveries": 50.0,
+      "max_over_index": 19,
+      "training_rule": "forward-season: season Y<=train_end uses only seasons < Y (from warmup_year); seasons > train_end use fixed seasons <= train_end"
+    },
+    "inn1": {
+      "band": [
+        0.6,
+        0.9
+      ],
+      "hgb_max_depth": 3,
+      "hgb_learning_rate": 0.05,
+      "hgb_max_iter": 100,
+      "hgb_l2": 10.0,
+      "monotonic": {
+        "pre_runs": 1,
+        "pre_balls": 0,
+        "wickets_lost": -1
+      },
+      "min_pressure_balls": 40,
+      "min_normal_balls_uplift": 100,
+      "min_stratum_balls": 10,
+      "min_matches_uplift": 3,
+      "calibration_bins": [
+        0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0001
+      ],
+      "note": "band reuses the second-innings band edges unchanged (no new tuning); min-ball floors are scaled-down design choices because first-innings pressure balls are rarer"
+    }
+  },
+  "v5": {
+    "band": [
+      0.6,
+      0.9
+    ],
+    "band_alt": [
+      0.7,
+      0.95
+    ],
+    "decided": [
+      0.05,
+      0.95
+    ],
+    "decided_alt": [
+      0.1,
+      0.9
+    ],
+    "wicket_values": [
+      10,
+      15,
+      20,
+      25,
+      30
+    ],
+    "top_n": 10,
+    "min_overall_balls": 200,
+    "chase": {
+      "min_pressure_balls": 60,
+      "min_normal_balls_uplift": 120,
+      "min_stratum_balls": 10,
+      "min_matches_uplift": 3
+    },
+    "inn1": {
+      "min_pressure_balls": 40,
+      "min_normal_balls_uplift": 100,
+      "min_stratum_balls": 10,
+      "min_matches_uplift": 3
+    },
+    "split_min_overall_balls": 150,
+    "split_min_pressure_balls": 40,
+    "split_min_uplift_pressure": 25,
+    "split_min_uplift_normal": 60,
+    "min_stratum_balls": 10,
+    "placebo_reps": 30,
+    "placebo_seed": 42,
+    "win_rate_bins": [
+      0,
+      0.05,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      0.95,
+      1.0001
+    ],
+    "inn1_calib_bins": [
+      0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0001
+    ],
+    "note": "v5: isotonic-calibrated state scores + symmetric near-decided exclusion on the calibrated scale; band and decided thresholds are design choices with sensitivity runs"
+  }
+}

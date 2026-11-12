@@ -1,0 +1,16 @@
+{
+  "downloaded_on": "2026-11-11",
+  "primary_data": {
+    "url": "https://cricsheet.org/downloads/ipl_json.zip",
+    "listing": "https://cricsheet.org/downloads/",
+    "format": "https://cricsheet.org/format/json/",
+    "sha256": "46ff2f5e41147510a55502e52ea8761b216a319974cad907d6ff2d8c2d4be495",
+    "license": "ODC Attribution, per LICENSE.txt in source archive"
+  },
+  "reporting_metadata": {
+    "documentation": "https://github.com/aadi-jn/indian-premier-league/blob/main/docs/data_dictionary.md",
+    "squads_snapshot": "https://api.github.com/repos/aadi-jn/indian-premier-league/git/blobs/5938d4cb658388d79e11afbe8159ccb9367fd058",
+    "people_snapshot": "https://api.github.com/repos/aadi-jn/indian-premier-league/git/blobs/bfa44195bc61fcedca5b694a92519e44a3eb461e",
+    "usage": "Secondary sourced static styles, joined by registry IDs, reporting only; not model features; not current eligibility."
+  }
+}
