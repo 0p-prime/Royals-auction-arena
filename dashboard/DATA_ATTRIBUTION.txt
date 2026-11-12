@@ -1,0 +1,15 @@
+Data attribution
+
+Historical ball data: Cricsheet IPL JSON
+https://cricsheet.org/downloads/
+https://cricsheet.org/format/json/
+
+The underlying Cricsheet data is made available under the Open Data Commons Attribution License (ODC-By) v1.0:
+https://opendatacommons.org/licenses/by/1-0/
+
+Derived summaries are transformed analysis outputs, not original Cricsheet delivery files.
+
+Bowling historical reporting labels: aadi-jn/indian-premier-league, joined by registry ID for reporting only, as recorded in the supplied analysis provenance:
+https://github.com/aadi-jn/indian-premier-league/blob/main/docs/data_dictionary.md
+
+Team and style labels are historical. They do not establish present team, retention status or auction eligibility.

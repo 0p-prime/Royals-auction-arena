@@ -1,0 +1,92 @@
+{
+  "site": "Royals Auction Arena - Pressure Lab (IPL 2022-2026 historical analysis)",
+  "batting": {
+    "seasons": "IPL 2022-2026",
+    "interval": "90%",
+    "source": "Verified batting aggregate outputs; Cricsheet IPL JSON, retrieved 2026-11-12.",
+    "method": [
+      [
+        "Pressure and performance",
+        "BPI = 100 × probability of a dot or striker dismissal on the current legal ball. Pre-ball MPI/LPI features use nested match-grouped out-of-fold models. RAE is batter runs minus expected runs, minus a state-specific wicket penalty times the centered dismissal residual. Pressure and normal are distinct BPI buckets."
+      ],
+      [
+        "Uplift and uncertainty",
+        "PPF is recency-weighted pressure RAE100 minus normal RAE100. PPF_adj applies empirical-Bayes shrinkage. The displayed 90% uplift intervals are lambda-scaled match-bootstrap intervals, conditional on the fitted estimator, not posterior intervals. Pressure and overall levels have no intervals supplied in this export."
+      ],
+      [
+        "Selection and quotas",
+        "Sample-qualified requires at least 60 pressure and 200 normal balls. The analysis top 10 additionally uses an active-player/shortlist/performance funnel; 52 meet the sample floors; 50 also meet the source active-season requirement. Sample-qualified is not the same pool. The 3 opener / 4 middle / 3 finisher quota list includes Rinku Singh and Stubbs despite negative uplift; they fill finisher slots, not the pressure-specialist criterion. Team labels are recorded data, not current retention or auction status."
+      ],
+      [
+        "Validation and scope",
+        "Split-half 0.026 eligible (n=52), -0.195 all (n=140); temporal pressure-premium correlation 0.16. The reported 0.60 pressure-level correlation is not evidence that uplift reproduces. Baseline comparisons are in-sample. 69% of pressure balls occur within a batter's first six balls. Sparse wicket-penalty cells add unquantified uncertainty; 19% have fewer than five historical stints."
+      ],
+      [
+        "Data exclusions",
+        "Legal balls only. 585 no-ball batter runs and 27 non-legal-ball dismissals are excluded. Retired hurt/out does not count as striker dismissal. 414 DLS chase rows are excluded because revised targets were unavailable."
+      ]
+    ],
+    "caveat": "Historical ordering is indicative. Only Samson's 90% uplift interval among the analysis top 10 excludes zero. Split-half correlation: 0.026 for eligible batsmen; temporal uplift correlation: 0.16. New and settled batsmen are combined, with no balls-faced adjustment."
+  },
+  "bowling": {
+    "seasons": "IPL 2022-2026",
+    "interval": "about 95%",
+    "source": "Verified v5 bowling aggregate export. Cricsheet IPL JSON; historical reporting metadata, not auction eligibility.",
+    "method": [
+      [
+        "Pressure definitions",
+        "2nd innings: the model scores the chasing side as strongly placed to win (0.6-0.9 on its calibration-adjusted scale) from runs needed, legal balls left and wickets in hand, judged before each ball. States where one side is close to certain to win (above 0.95 or below 0.05 on that scale) are removed from both the pressure and normal groups; in 2022-26 data such states still flipped about 3-6% of the time. 1st innings: the model scores the side batting first as strongly placed to win (same 0.6-0.9 band, same near-decided removal) from current score, legal balls bowled and wickets lost. Venue is not used. First- and second-innings scores are on different scales, so their lists are kept separate and never merged."
+      ],
+      [
+        "Performance and ordering",
+        "Runs saved vs model expectation per 100 deliveries (all delivery attempts, including wides and no-balls). Positive = saved runs. Values are shrunk toward the group average: bowlers with fewer deliveries move toward the average, not toward zero. Wickets taken above model expectation per 100 deliveries (attempts). Positive = more wickets than expected. Order is the final placing: best median rank across wicket values, then best mean rank, then name. The median rank and best-worst range shown beside it describe how much the placing moves. How the bowler's rank moves when one wicket is valued at 10 to 30 runs. Combined score = runs saved + wicket value x wickets above expected."
+      ],
+      [
+        "Uplift and intervals",
+        "Runs saved per 100 deliveries in pressure situations minus the bowler's own normal situations, compared only within the same innings phases (powerplay / middle / death). Uncertainty range (about 95%) for runs saved per 100 deliveries, from match-clustered errors. Ranges condition on the frozen models and shrinkage estimates; across ~118 bowlers some ranges will exclude 0 by chance."
+      ],
+      [
+        "Expectation model",
+        "Expectation models estimate runs and wicket chance for each ball from the match situation (including venue), always trained on earlier seasons only: the 2022 season uses models trained on 2019-21, 2023 uses 2022, 2024 uses 2022-23, and 2025-26 use one frozen model trained on 2022-24. A bowler's own season never shapes his expectation."
+      ],
+      [
+        "Validation and limits",
+        "Lists are historical results under a model-defined pressure measure that is still being checked. The pressure score is calibration-adjusted and near-certain states are removed from both groups, but the removal cutoffs are design choices (their flip rates still include 5% once match-to-match uncertainty is counted) and scores are still not guaranteed probabilities and the lists are not validated for selection or auction decisions. In split-half checks the overall runs-saved level repeats moderately (0.31-0.43); the pressure level and the pressure-minus-normal uplift repeat weakly, and wicket and combined rankings do not repeat. Uncertainty ranges condition on the frozen models and shrinkage estimates, and across ~118 bowlers some ranges will exclude 0 by chance. Band edges, the near-decided cutoffs and wicket values are design choices; changing them changes the lists. 2025-26 data was already used while developing the method and chase outcomes shifted in 2026, so it is not a fresh test. A forward check across consecutive bowler-seasons found only a weak-to-modest next-season association for the overall runs-saved level, and no demonstrated forward signal for the pressure level, uplift or wicket metrics (thin cohorts, all intervals span zero); the data is insufficient to settle whether a pressure signal exists."
+      ],
+      [
+        "Team and sample scope",
+        "Team = latest IPL team the bowler played for in the 2022-26 data. It is not their current team, retention status or auction eligibility. All bowling denominators are delivery attempts, including wides and no-balls; batting denominators are legal balls."
+      ]
+    ],
+    "definitions": {
+      "pressureChase": "2nd innings: the model scores the chasing side as strongly placed to win (0.6-0.9 on its calibration-adjusted scale) from runs needed, legal balls left and wickets in hand, judged before each ball. States where one side is close to certain to win (above 0.95 or below 0.05 on that scale) are removed from both the pressure and normal groups; in 2022-26 data such states still flipped about 3-6% of the time.",
+      "pressureFirstInnings": "1st innings: the model scores the side batting first as strongly placed to win (same 0.6-0.9 band, same near-decided removal) from current score, legal balls bowled and wickets lost. Venue is not used. First- and second-innings scores are on different scales, so their lists are kept separate and never merged.",
+      "team": "Team = latest IPL team the bowler played for in the 2022-26 data. It is not their current team, retention status or auction eligibility.",
+      "expectation": "Expectation models estimate runs and wicket chance for each ball from the match situation (including venue), always trained on earlier seasons only: the 2022 season uses models trained on 2019-21, 2023 uses 2022, 2024 uses 2022-23, and 2025-26 use one frozen model trained on 2022-24. A bowler's own season never shapes his expectation."
+    },
+    "units": {
+      "order": "Order is the final placing: best median rank across wicket values, then best mean rank, then name. The median rank and best-worst range shown beside it describe how much the placing moves.",
+      "runsSavedPer100": "Runs saved vs model expectation per 100 deliveries (all delivery attempts, including wides and no-balls). Positive = saved runs. Values are shrunk toward the group average: bowlers with fewer deliveries move toward the average, not toward zero.",
+      "runsSavedCi": "Uncertainty range (about 95%) for runs saved per 100 deliveries, from match-clustered errors. Ranges condition on the frozen models and shrinkage estimates; across ~118 bowlers some ranges will exclude 0 by chance.",
+      "wicketsAboveExpectedPer100": "Wickets taken above model expectation per 100 deliveries (attempts). Positive = more wickets than expected.",
+      "deliveries": "Delivery attempts included in the sample (wides and no-balls count).",
+      "rankRange": "How the bowler's rank moves when one wicket is valued at 10 to 30 runs. Combined score = runs saved + wicket value x wickets above expected.",
+      "uplift": "Runs saved per 100 deliveries in pressure situations minus the bowler's own normal situations, compared only within the same innings phases (powerplay / middle / death)."
+    },
+    "minimumBalls": {
+      "overall": "at least 200 deliveries",
+      "chasePressureLevel": "at least 60 pressure deliveries",
+      "chasePressureUplift": "at least 60 pressure and 120 normal deliveries, 3 matches, and 10 deliveries per phase stratum",
+      "firstInningsPressureLevel": "at least 40 pressure deliveries",
+      "firstInningsPressureUplift": "at least 40 pressure and 100 normal deliveries, 3 matches, and 10 deliveries per phase stratum"
+    },
+    "caveat": "Pressure level and uplift repeat weakly. Wicket and combined ranks do not repeat. Lists are not validated for pressure-skill or auction selection. 2025-26 is development data, not a fresh test. Runs intervals do not quantify uncertainty in the composite ranks.",
+    "listSizes": {
+      "overall": 118,
+      "chasePressureLevel": 59,
+      "chasePressureUplift": 41,
+      "firstInningsPressureLevel": 96,
+      "firstInningsPressureUplift": 57
+    }
+  }
+}
