@@ -7,4 +7,4 @@ IPL auction analytics project. Code is grouped by domain.
   pressure uplift, for both innings. Code, methodology, tests and the frozen
   trained models. See `bowling-analysis/README.md`.
 
-Further domains join this repository as their parts are completed.
+Batting analysis is next; further domains land here as they are built.
