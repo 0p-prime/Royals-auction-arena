@@ -21,17 +21,19 @@ The analysis is a description of past performance, built to inform scouting and 
 
 - [Highlights](#highlights)
 - [What it measures](#what-it-measures)
+- [Results at a glance](#results-at-a-glance)
 - [Repository layout](#repository-layout)
 - [Architecture](#architecture)
 - [Quick start](#quick-start)
 - [Methodology summary](#methodology-summary)
+- [Key formulas](#key-formulas)
 - [Validation](#validation)
 - [Pitch assistant](#pitch-assistant)
 - [Data and attribution](#data-and-attribution)
 
 ## What it measures
 
-Every list answers one question. They are kept separate and are never merged into a single score.
+Every list answers one question, and each lens is reported separately by design, so every ranking stays interpretable on its own terms.
 
 | Lens | Question | Scope |
 | --- | --- | --- |
@@ -40,6 +42,22 @@ Every list answers one question. They are kept separate and are never merged int
 | Uplift | How does pressure-state performance differ from the player's own normal-state performance? | Batting; bowling per innings |
 
 Bowling is reported per innings: overall, chase pressure, chase uplift, first-innings pressure and first-innings uplift. Innings-specific lists are not combined. Batting uses legal balls faced and bowling uses delivery attempts, so each discipline is read on its own scale.
+
+## Results at a glance
+
+Top-10 views from the current 2022-26 analysis, matching the live site. Whiskers show the published interval for each chart: 90% for batting uplift, about 95% for the bowling runs component.
+
+![Batting top 10 by pressure uplift](docs/charts/batting-uplift-top10.png)
+
+![Bowling top 10 overall](docs/charts/bowling-overall-top10.png)
+
+The bowling overall order is the composite rank across wicket values 10-30, so it also weighs wickets above expectation; the bars show the runs-saved component. Each chart carries its own ordering note, so it stays self-explanatory when shared on its own.
+
+![Bowling top 10 chase-pressure uplift](docs/charts/bowling-chase-uplift-top10.png)
+
+Chase uplift is ordered the same composite way; the bars show the runs-uplift component.
+
+The full lists, with filters, side-by-side comparison and CSV export, are on the [live site](https://royals-auction-arena.vercel.app/).
 
 ## Repository layout
 
@@ -135,7 +153,7 @@ python3 -m unittest discover -s tests -p 'test_import.py'
 
 The importer needs `batsman_ppf.csv`, `shortlist_35.csv`, `top10_batsmen.csv` and `top10_role_quota.csv` from the batting run, and the v5 bowling JSON. Without an imported dataset the site shows an import screen rather than sample data.
 
-`npm start` runs a local static server (`server.mjs`). It serves the site and dataset only; it does not serve `/api/assistant`, so Pitch is not available locally.
+`npm start` runs a local static server (`server.mjs`) for the site and dataset. Pitch runs on the Vercel deployment (see [Deployment](#deployment)), so the local server is static-only by design.
 
 ### Deployment
 
@@ -147,7 +165,7 @@ There are two deployment shapes. Pick by whether you want Pitch.
 npm run build                # reads private/dataset.json, writes dist/
 ```
 
-`dist/` contains the HTML, CSS, JavaScript, fonts, images, `dataset.json`, attribution and a `vercel.json` with the security headers. It does not include `api/` or `lib/`. Deploy it as the static project root with no install or build command. The chat widget will not work from this export.
+`dist/` contains the HTML, CSS, JavaScript, fonts, images, `dataset.json`, attribution and a `vercel.json` with the security headers, ready to deploy as the static project root with no install or build command. For Pitch, use the Vercel shape below, which adds `api/` and `lib/`.
 
 **Site with Pitch (Vercel).** The serverless function and its bundled data live under `dashboard/web/`, whose `vercel.json` declares `api/assistant.js` and bundles `lib/**` into it. Use `dashboard/web` as the Vercel project root directory:
 
@@ -178,6 +196,26 @@ Inspect `dataset.json` before deploying: it contains player-level aggregates and
 - **Expectation.** Situation-only expected runs and dismissal. The wicket penalty is the expected runs the incoming batter adds from that state.
 - **PPF.** Pressure RAE per 100 balls minus normal RAE per 100 balls, with recency weights (1.0 for 2025-26, 0.6 for 2022-24), empirical-Bayes shrinkage, and 1000-resample match-bootstrap 90% intervals.
 - **Selection funnel.** At least 60 pressure balls and 200 normal balls, active in 2025 or 2026, shortlist of 35, analysis top 10, and a role-balanced 3 openers / 4 middle order / 3 finishers variant.
+
+## Key formulas
+
+**Batting.** The pressure index is the modeled chance that the current legal ball is a dot or a striker dismissal, built from pre-ball information only:
+
+$$\mathrm{BPI} = 100 \times P(\text{dot ball or striker dismissal} \mid \text{pre-ball state})$$
+
+Runs above expectation per ball, where $\pi(\text{over}, \text{wickets})$ is the expected runs the incoming batter adds from that state:
+
+$$\mathrm{RAE} = \big(r - \mathrm{E}[r \mid \text{state}]\big) - \pi(\text{over}, \text{wickets}) \times \big(d - \mathrm{E}[d \mid \text{state}]\big)$$
+
+The pressure performance factor and its empirical-Bayes-shrunk uplift, with shrinkage weight $\lambda_i$:
+
+$$\mathrm{PPF} = \mathrm{RAE}_{100}^{\mathrm{pressure}} - \mathrm{RAE}_{100}^{\mathrm{normal}}, \qquad \mathrm{uplift}_i = \lambda_i \times \mathrm{PPF}_i, \qquad \lambda_i = \frac{\sigma^2_{\mathrm{between}}}{\sigma^2_{\mathrm{between}} + \sigma^2_{\mathrm{within},\,i}}$$
+
+**Bowling.** Runs above expectation per delivery, reported side by side at wicket values $v$ of 10, 20 and 30:
+
+$$\mathrm{RAE}_{\mathrm{bowl}} = \mathrm{E}[R \mid \text{state}] - \text{runs conceded} + v \times \text{wicket}$$
+
+Pressure states come from the calibrated score $s$: pressure is $0.6 \le s < 0.9$, normal is $s < 0.6$, and near-decided states ($s \ge 0.95$ or $s \le 0.05$) sit outside both pools. Uplift is the within-phase pressure-minus-normal regression coefficient with match-clustered standard errors.
 
 ## Validation
 
