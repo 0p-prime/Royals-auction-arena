@@ -84,10 +84,10 @@
   "listSizes": {
    "overall": 123,
    "pooledUplift": 35,
-   "chasePressureLevel": 108,
-   "firstInningsPressureLevel": 156,
-   "chasePressureUplift": 36,
-   "firstInningsPressureUplift": 63
+   "chasePressureLevel": 123,
+   "firstInningsPressureLevel": 176,
+   "chasePressureUplift": 73,
+   "firstInningsPressureUplift": 108
   }
  }
 }
