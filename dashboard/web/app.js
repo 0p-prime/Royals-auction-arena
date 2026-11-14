@@ -117,7 +117,7 @@ catch(err){$('dashboard').hidden=true;$('loadError').hidden=false;$('errorText')
 
 function route(){
  const hash=location.hash.slice(1);activePage=['home','batting','bowling','methodology'].includes(hash)?hash:'home';
- document.querySelector('.intro').hidden=activePage!=='home';$('homeContent').hidden=activePage!=='home';
+ document.querySelector('.intro').hidden=activePage!=='home';$('homeContent').hidden=activePage!=='home';const a3=document.querySelector('.arena3d');if(a3)a3.hidden=activePage!=='home';
  document.querySelectorAll('[data-page]').forEach(a=>{a.classList.toggle('selected',a.dataset.page===activePage);if(a.dataset.page===activePage)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  if(!data)return;
  if(activePage==='home')$('period').textContent='IPL 2022-2026 · Batting + bowling';

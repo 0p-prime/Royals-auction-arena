@@ -180,3 +180,35 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .masthead .pill{color:#fff0fa;border-color:#c27eb4;background:#45164d}
 @media(max-width:1000px) and (min-width:701px){.arena-logo{width:170px}}
 @media(max-width:700px){.masthead{padding-top:10px;padding-bottom:10px}.arena-logo{width:164px}.site-nav{margin-top:6px;margin-bottom:12px}}
+
+/* v8: animated 3D cricket ground on the home page, 3D card touches, single-line control focus. */
+.arena3d{margin:0 0 42px;background:linear-gradient(150deg,#101d52,#1c2f6e 60%,#253a85);border-radius:26px;border:1.5px solid #33468a;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:stretch}
+.arena3d-head{padding:34px 8px 34px 34px;color:#fff;align-self:center}
+.arena3d-head .eyebrow{color:#ff9bcf}
+.arena3d-head h2{color:#fff;font-size:34px;margin-bottom:14px}
+.arena3d-head>p:last-child{color:#c9d3ef;font-size:13.5px;max-width:340px;margin:0}
+.arena3d-stage{position:relative;min-height:430px;background:radial-gradient(ellipse at 50% 120%,#2c439a 0,#16265e00 70%)}
+#groundCanvas{display:block;width:100%;height:100%;min-height:430px;cursor:grab;touch-action:none}
+#groundCanvas:active{cursor:grabbing}
+.arena3d-stage.no-webgl #groundCanvas{display:none}
+.arena3d-stage.no-webgl:after{content:'3D view needs a browser with WebGL';position:absolute;inset:0;display:grid;place-items:center;color:#c9d3ef;font-size:13px}
+.arena3d-badge{position:absolute;left:16px;bottom:14px;font-size:9px;font-weight:750;letter-spacing:.16em;color:#ffd6ea;background:#101d52b8;border:1px solid #4d5f9e;border-radius:20px;padding:7px 13px;pointer-events:none}
+@media(max-width:1000px){.arena3d{grid-template-columns:1fr}.arena3d-head{padding:26px 24px 6px}.arena3d-head>p:last-child{max-width:none}.arena3d-stage,#groundCanvas{min-height:340px}}
+@media(max-width:700px){.arena3d{border-radius:20px;margin-bottom:26px}.arena3d-head h2{font-size:27px}.arena3d-stage,#groundCanvas{min-height:280px}.arena3d-badge{font-size:8px;padding:6px 10px}}
+
+/* Gentle 3D depth on the home cards and a soft float on the sport icons. */
+.home-grid{perspective:1400px}
+.home-card{transition:transform .3s ease,box-shadow .3s ease,filter .2s ease;transform-style:preserve-3d}
+@media(prefers-reduced-motion:no-preference){
+ .home-card:hover{transform:translateY(-7px) rotateX(5deg) rotateY(-4deg);box-shadow:0 26px 44px -18px #17245466;filter:none}
+ .method-card:hover{box-shadow:0 26px 44px -18px #79513459}
+ .sport-icon{animation:iconFloat 4.5s ease-in-out infinite}
+ @keyframes iconFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-7px) rotate(-3deg)}}
+ .stat{transition:transform .25s ease,box-shadow .25s ease}
+ .stat:hover{transform:translateY(-4px);box-shadow:0 16px 30px -14px #1724544d}
+}
+
+/* Single clean line on tapped/focused controls (no double ring over the border). */
+.filters select:focus-visible,.filters input:focus-visible,.compare-controls select:focus-visible{outline:none;border-color:var(--pink);box-shadow:0 0 0 1.5px var(--pink)}
+.subtabs button:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pink)}
+.subtabs button.active:focus-visible{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pink),0 6px 14px -6px #c8006a}
