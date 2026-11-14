@@ -241,6 +241,7 @@ tbody tr:hover{background:#fff0f7;box-shadow:inset 3px 0 0 var(--pink)}
 /* Gentle 3D depth returns: the three home cards tilt on hover, with the soft float on the sport icons. */
 .home-grid{perspective:1400px}
 .home-card{transform-style:preserve-3d;transition:transform .3s ease,box-shadow .3s ease,filter .2s ease,border-color .25s ease}
+.home-card,.stat,.compare-card,.player-card,.board,.compare-section,.method-section,.chart-panel{animation-fill-mode:backwards}
 @media(prefers-reduced-motion:no-preference){
  .home-card:hover{transform:translateY(-7px) rotateX(5deg) rotateY(-4deg);box-shadow:0 26px 44px -18px #17245466;filter:none}
  .method-card:hover{box-shadow:0 26px 44px -18px #79513459}
