@@ -13,7 +13,7 @@ const listKey=()=>metric()==='overall'?'overall':$('innings').value==='pooled'?'
 document.documentElement.dataset.theme='light';
 try{localStorage.removeItem('raa-theme');}catch(err){}
 function chartColors(){const s=getComputedStyle(document.documentElement);const g=k=>s.getPropertyValue(k).trim();return{grid:g('--chart-grid'),tick:g('--chart-tick'),zero:g('--chart-zero'),name:g('--chart-name'),interval:g('--chart-interval'),dot:g('--chart-dot'),value:g('--chart-value')};}
-function load(dataset){data=validateDataset(dataset);$('loadError').hidden=true;$('dashboard').hidden=false;reset();route();}
+function load(dataset){data=validateDataset(dataset);{const b=data.disciplines.batting,w=data.disciplines.bowling;const nb=b&&b.players?b.players.length:0,nw=w&&w.lists?Object.keys(w.lists).length:0;if($('statBatters'))$('statBatters').textContent=nb?nb.toLocaleString('en-IN'):'–';if($('statBowlViews'))$('statBowlViews').textContent=nw||'–';}$('loadError').hidden=true;$('dashboard').hidden=false;reset();route();}
 function reset(){
  if(!data.disciplines[discipline])discipline=Object.keys(data.disciplines)[0];
  document.querySelectorAll('[data-discipline]').forEach(b=>{b.disabled=!data.disciplines[b.dataset.discipline];b.classList.toggle('active',b.dataset.discipline===discipline);b.setAttribute('aria-pressed',String(b.dataset.discipline===discipline));});

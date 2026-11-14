@@ -1,9 +1,9 @@
 (function(){
 'use strict';
-var NAME='Pitch AI',history=[],busy=false;
+var NAME='Ask Pitch AI',history=[],busy=false;
 var chips=['Explain every factor on this site','What is uplift?','How does the pressure situation work?','Why do some players have wide intervals?','Who is in the batting top 10?','How are bowlers ranked?'];
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
-var fab=el('button','ai-fab');fab.type='button';fab.setAttribute('aria-label','Open Ask '+NAME);fab.setAttribute('aria-expanded','false');
+var fab=el('button','ai-fab');fab.type='button';fab.setAttribute('aria-label','Open '+NAME);fab.setAttribute('aria-expanded','false');
 fab.innerHTML='<span class="ai-bot-label">Ask Pitch AI</span><span class="ai-bot-character"><svg viewBox="0 0 88 100" aria-hidden="true" fill="none"><ellipse class="ai-bot-shadow" cx="44" cy="94" rx="23" ry="4" fill="#192963" opacity=".14"/><g class="ai-bot-float"><path d="M44 12V5" stroke="#192963" stroke-width="3" stroke-linecap="round"/><circle cx="44" cy="5" r="4" fill="#e30078"/><path d="M24 64c0-12 40-12 40 0v10c0 9-9 15-20 15s-20-6-20-15V64Z" fill="#fff" stroke="#192963" stroke-width="2.5"/><path d="M18 62 9 72M70 62l9 10" stroke="#e30078" stroke-width="7" stroke-linecap="round"/><rect x="13" y="15" width="62" height="51" rx="21" fill="#fff" stroke="#192963" stroke-width="2.5"/><rect x="21" y="25" width="46" height="29" rx="13" fill="#192963"/><ellipse class="ai-bot-eye" cx="34" cy="38" rx="4" ry="5" fill="#ff86bf"/><ellipse class="ai-bot-eye" cx="54" cy="38" rx="4" ry="5" fill="#ff86bf"/><path d="M39 47q5 4 10 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="m44 69-4 6h5l-1 7 7-10h-6l1-3Z" fill="#e30078"/></g></svg></span>';
 var panel=el('section','ai-panel');panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label',NAME);
 var head=el('div','ai-head');var ttl=el('div','ai-title');ttl.appendChild(el('strong',null,NAME));ttl.appendChild(el('small',null,'Players, rankings and stats'));

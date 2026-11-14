@@ -214,3 +214,5 @@ tbody tr:hover{background:#fff0f7;box-shadow:inset 3px 0 0 var(--pink)}
 @keyframes ai-open{from{opacity:0;transform:perspective(900px) rotateX(-14deg) rotateY(8deg) scale(.92)}to{opacity:1;transform:perspective(900px) none}}
 @media(prefers-reduced-motion:no-preference){.ai-panel:not([hidden]){animation:ai-open .4s cubic-bezier(.2,.8,.2,1) both}}
 @media(prefers-reduced-motion:reduce){.ai-bot-character{animation:none;transform:rotateY(-10deg)}}
+
+@media(max-width:700px){.ai-fab{right:10px;bottom:10px}.ai-bot-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);padding:0;border:0;box-shadow:none}.ai-bot-character{width:50px;height:60px}.ai-fab::after{content:'AI';position:absolute;right:-2px;top:2px;background:#e30078;color:#fff;font:800 9px/1 inherit;padding:3px 5px;border-radius:8px}}
