@@ -17,7 +17,7 @@ export function validateDataset(data){
 export function sourcePlayers(dataset,discipline,metric,innings='chase'){
  const d=dataset.disciplines[discipline];if(!d)return [];
  if(discipline==='batting')return d.players;
- const key=metric==='overall'?'overall':`${innings==='first'?'firstInnings':'chase'}Pressure${metric==='uplift'?'Uplift':'Level'}`;
+ const key=metric==='overall'?'overall':innings==='pooled'?'pooledUplift':`${innings==='first'?'firstInnings':'chase'}Pressure${metric==='uplift'?'Uplift':'Level'}`;
  return d.lists[key]||[];
 }
 export function sortedPlayers(players,metric,discipline,order='published'){

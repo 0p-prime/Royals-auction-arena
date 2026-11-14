@@ -10,6 +10,12 @@
   (censoring inside the expectation), estimated leave-one-match-out; arrival at
   wkts+1; at 9 down the penalty is 0 (innings ends). Fallbacks: over-only, then global.
 - PPF = RAE100_pressure - RAE100_normal with recency weights (2025-26: 1.0, 2022-24: 0.6).
+- Selection buckets: pressure = per-match BPI at or above the 70th percentile,
+  normal = at or below the 55th percentile, with both quantiles computed over ALL
+  supplied 2022-26 matches (the middle 15% is excluded from the comparison).
+  Only the percentile values are configurable; the reference universe is the full
+  dataset. (The temporal diagnostic below is a separate check that restricts
+  fitting, including its bucket edges, to 2022-24.)
 
 ## Validation policies (leakage controls)
 - Features: all pre-ball (shift tests; zeroing a ball's own outcome leaves its features
@@ -33,7 +39,7 @@
   reuses the REPORTED full-data OOF RAE and nested-OOF BPI (models are NOT refit per
   half); half-specific PPF, within-half bootstrap variance (200 joint draws) and EB
   shrinkage are then recomputed to give PPF_adj per half. Spearman of PPF_adj across
-  batsmen. Results: eligible 0.026 (n=52), all batsmen -0.195 (n=140).
+  batsmen. Results: eligible -0.022 (n=130), all batsmen -0.004 (n=406).
 - EB shrinkage: lambda_i = between/(between + within_i); between = max(eps,
   var(PPF) - mean(within)); within_i = variance of PPF over 1000 match-bootstrap
   resamples (resample each batsman's matches with replacement, recompute weighted
@@ -46,11 +52,10 @@
 
 ## Role-quota disclosure
 The 3/4/3 quota (3 openers / 4 middle / 3 finishers) is feasible without backfill:
-openers Jaiswal, Sai Sudharsan, Kohli; middle Samson, Klaasen, Dube, Patidar;
-finishers Jadeja (+21), Rinku Singh (-30, 90% CI -88 to +28), Stubbs (-42,
-CI -133 to +12). The quota list drops Pant and Abhishek Sharma from the
-unconstrained top 10. Singh and Stubbs qualify via pressure RAE100 >= 0 but have
-NEGATIVE PPF_adj - they are quota fillers, not pressure specialists.
+openers V Suryavanshi, Abhishek Sharma, V Kohli; middle C Green, RM Patidar,
+MR Marsh, GD Phillips; finishers TH David, AD Russell, R Shepherd (+9.0,
+90% CI -42.1 to +57.3). The quota list drops RR Hendricks from the
+unconstrained top 10 (the three opener slots are already filled).
 
 ## Implementation notes (2026-11-12)
 - Bootstrap: ONE joint resample of matches per draw, both buckets from the same draw

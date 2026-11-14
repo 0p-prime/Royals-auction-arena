@@ -24,4 +24,4 @@ Player fields:
 
 Bowling list keys: `overall`, `chasePressureLevel`, `chasePressureUplift`, `firstInningsPressureLevel`, `firstInningsPressureUplift`. The active list supplies the players; absent metrics remain null. The interface uses delivery attempts rather than the missing pressure count when applying an overall-view sample filter.
 
-All non-finite CSV values are serialized as null. The importer rejects a bowling source whose metadata is not v5. Source hashes refer to aggregate files, not raw delivery files.
+All non-finite CSV values are serialized as null. The builder reads the batting aggregate CSVs and the bowling aggregates plus scored deliveries. Source hashes refer to aggregate files, not raw delivery files.

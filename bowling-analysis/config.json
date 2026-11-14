@@ -18,8 +18,8 @@
   "powerplay_end": 6,
   "death_start": 16,
   "phase_weight": 1.25,
-  "pressure_quantile": 0.75,
-  "normal_quantile": 0.4,
+  "pressure_quantile": 0.7,
+  "normal_quantile": 0.55,
   "wicket_value": 20.0,
   "wicket_value_sensitivity": [
     10.0,

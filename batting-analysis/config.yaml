@@ -2,8 +2,8 @@ seasons: [2022, 2023, 2024, 2025, 2026]
 seed: 42
 cv_folds: 5
 bpi:
-  pressure_top_q: 0.25
-  normal_bottom_q: 0.40
+  pressure_top_q: 0.30
+  normal_bottom_q: 0.55
   sensitivity: [{top: 0.20, bottom: 0.45}, {top: 0.30, bottom: 0.35}]
 local_windows: {dot_balls: 12, wickets: 18}
 settledness_cap: 30

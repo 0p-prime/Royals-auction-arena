@@ -1,15 +1,16 @@
 # Bowling Analysis
 
-Historical IPL bowling analysis for the Royals Auction Arena project,
-seasons 2022-26. The pipeline scores each bowler against per-ball model
-expectation: overall, in high-pressure states, and against his own normal
-states, split by innings. It describes past performance. It is not a
-predictor of future ability and not an auction selection ranking.
+Historical bowling analysis for the Royals Auction Arena project, on the
+supplied 2022-26 matches (IPL, T20I and Asia Cup tournaments). The pipeline
+scores each bowler against per-ball model expectation: overall, in
+high-pressure states, and against his own normal states, split by innings.
+It describes past performance on those matches.
 
-Current version: **v5** (calibrated pressure score, both-tail near-decided
-exclusion). Earlier versions (bucket BPF, continuous slope, v3 components,
-v4) remain in `models/` for development history; outputs are versioned and
-must not be mixed.
+Current published list: **bucket BPF funnel** (pressure-minus-normal RAE100
+with sample shrinkage, ordered through the eligibility and shortlist
+funnel). Experimental versions (continuous slope, v3 components, v4/v5
+win-score states) remain in `models/` for development history; outputs are
+versioned and must not be mixed.
 
 ## Repository layout
 
@@ -57,12 +58,12 @@ files.
 Ball-by-ball source: Cricsheet IPL JSON (ODC Attribution, license bundled
 at `data/Cricsheet_LICENSE.txt`). Links and checksums in `SOURCES.json`.
 
-2022-26 source counts 74/74/71/74/74 = 367 matches; 355 usable after 12
-exclusions for revised targets, reduced overs, no results and missing
-innings (`excluded_matches.csv`, `source_match_manifest.csv`). These are
-source-archive counts, not an independently verified fixture census. Both
-regular innings are used; super overs are excluded. 2019-21 matches are
-warmup training and historical profiles only.
+867 playable fixtures from 2022-26. 687 fixtures from 2023-26 are scored
+(158,496 deliveries); the 180 fixtures of the 2022 season are warmup
+training and historical profiles only and carry no out-of-sample scores.
+Exclusions for revised targets, reduced overs, no results and missing
+innings are logged (`excluded_matches.csv`, `source_match_manifest.csv`).
+Both regular innings are used; super overs are excluded.
 
 The loader accepts the Cricsheet JSON ZIP or JSON directories directly.
 CSV aliases are autodetected; ambiguous extras, wicket credit, sequence,
@@ -137,7 +138,7 @@ descending then pressure balls. Pace/spin views run the same funnel within
 tagged players. Majority-phase quotas are implemented, off by default, and
 never silently backfilled.
 
-## Pressure states and win scores (v4/v5)
+## Pressure states and win scores (exploratory v4/v5, not the published list)
 
 - Chase win score pb (`winprob.py`): exact dynamic programming over (runs
   needed, legal balls left, wickets lost). Training frequencies from
@@ -177,39 +178,23 @@ never silently backfilled.
 
 ## Validation
 
-- Alternate-match and early/late Spearman repeatability, cohorts stated
-  per check. Overall runs-saved level repeats moderately (0.31 alternate,
-  0.43 early/late; 80/51 bowlers). Wicket residuals do not (0.03/0.01),
-  and the combined-at-20 ranking does not (-0.03/0.05). Pressure and
-  uplift orders are weak and unstable in both innings.
-- Bootstrap: 500 within-bowler match-cluster resamples with buckets,
-  exposures and shrinkage recomputed per draw; model fits, feature history
-  and cutoffs held fixed, so intervals omit fitting, cutoff and selection
-  uncertainty and are not simultaneous or rank intervals.
+- Model holdout: boundary model selected once on 2024 development Brier
+  (both candidates fitted on seasons up to 2023); held-out 2025-26 AUC
+  0.600, Brier 0.150. Expected-runs holdout MAE 1.30 runs per delivery.
+- Consistency across matches, measured: BPF rank correlation 0.05 across
+  alternate matches (361 bowlers) and -0.01 early versus late (227).
+  Overall runs-saved level repeats better than the uplift difference;
+  subtracting two noisy levels is the weak step, so fine rank differences
+  in the uplift list are approximate.
+- Sensitivity: wicket value 10 instead of 20 keeps 7 of the 10 names;
+  30 keeps 9 of the 10
+  selected names. Pressure-cutoff choices move individual placings.
+- Bootstrap: 500 within-bowler match-cluster resamples; model fits,
+  feature history and cutoffs held fixed, so intervals cover sampling
+  noise only, not fitting, cutoff or selection uncertainty.
 - Confidence labels are a declared heuristic (High: >=30 matches, >=200
-  pressure balls, CI lower bound > 0). A failed stability check forces all
-  labels to Low, which is the current state: treat every list as
-  exploratory.
-- Continuous slope revision (`bpf_continuous.py`): all-ball OLS slope of
-  RAE on within-bowler centered BoPI, CR0 match-clustered SEs,
-  DerSimonian-Laird shrinkage. Alternate-match rho 0.140 vs matched-cohort
-  bucket baseline 0.100; time rho 0.040 vs 0.075. Both methods fail the
-  0.2 stability criterion; intervals are exploratory (no
-  multiple-comparison adjustment across ~118 bowlers, CR0 can understate
-  at small samples).
-- v3 component split (`bpf_components.py`): per-ball variance of the
-  combined score is dominated by the 20-run wicket part (~75% alone, ~81%
-  with covariance share), so runs and wickets are reported as separate
-  levels. Runs-prevented levels repeat (0.31/0.43 overall; 0.28/0.45 in
-  the high-risk bucket); the pressure-minus-normal difference does not
-  (0.04 alternate on 25 bowlers) - subtracting two noisy levels is the
-  weak step.
-- Forward association (`forward_association_test_v2.py`,
-  `outputs/forward_association_v2.json`): expanding-window season-to-season
-  check with train-only scalers. Overall runs-saved level shows
-  weak-to-modest association; pressure level, uplift and wicket metrics
-  show no demonstrated forward signal (thin cohorts, every CI spans 0).
-  Retrospective within the development period, not a fresh holdout.
+  pressure balls, CI lower bound > 0). With weak measured stability, all
+  labels are Low: treat every list as exploratory.
 
 ## Limitations
 
@@ -218,13 +203,12 @@ never silently backfilled.
   ground truth and no causal claim.
 - Expected-runs models are on average optimistic (population mean of runs
   prevented -3.6 per 100 balls); read values relative to other bowlers.
-- Period shift: 2026 chase win rate 0.64 vs 0.47-0.51 in 2022-25, so the
-  frozen historical calibration under-scores 2026 chase strength. 2025-26
-  is development evidence, not a fresh test.
+- Scores for 2025-26 are computed with models frozen on 2022-24 data;
+  period shifts after the training window are not re-learned.
 - No role or opponent-strength adjustment beyond phase matching; cluster
   SEs can be optimistic at small samples; the runs-wickets exchange rate
   remains an exposed assumption.
-- Team field is the latest observed IPL bowling team in the data, not
+- Team field is the latest observed bowling team in the data (club or country), not
   current contract, retention, nationality or auction eligibility.
 
 ## Notes

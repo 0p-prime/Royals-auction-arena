@@ -20,17 +20,27 @@ def check(dataset,batting,bowling):
         for field,column in mapping.items():assert same(p[field],r[column]),(p['id'],field);checked+=1
         assert p['eligible']==(r['eligible']=='True')
         assert p['sampleQualified']==(int(r['balls_p'])>=60 and int(r['balls_n'])>=200)
-    for field,file,column in [('top10','top10_batsmen.csv','Batsman'),('quota','top10_role_quota.csv','Batsman'),('shortlisted','shortlist_35.csv','batter')]:
-        assert {p['id'] for p in players.values() if p[field]}=={r[column] for r in csv_rows(Path(batting)/file)}
-    source=json.loads(Path(bowling).read_text())
-    for key,rows in source['lists'].items():
-        target=data['disciplines']['bowling']['lists'][key];assert len(target)==len(rows)
-        metric='overall' if key=='overall' else 'uplift' if key.endswith('Uplift') else 'pressure'
-        for p,r in zip(target,rows):
-            assert p['id']==r['bowler'] and p['order']==r['order']
-            for field,column in [(metric,'runsSavedPer100'),('ciLow','runsSavedCiLow'),('ciHigh','runsSavedCiHigh'),('wickets','wicketsAboveExpectedPer100'),('rankBest','rankBest'),('rankWorst','rankWorst'),('deliveries','deliveries')]:
-                assert same(p[field],r[column]),(key,p['id'],field);checked+=1
-            assert p['ranksByWicketValue']==r['ranksByWicketValue']
-    print(f'Integrity passed: {len(players)} batters, five bowling lists, {checked} numeric comparisons plus membership/order checks.')
+    for field,file in [('top10','top10_batsmen.csv'),('quota','top10_role_quota.csv'),('shortlisted','shortlist_35.csv')]:
+        assert {p['id'] for p in players.values() if p[field]}=={r['batter'] for r in csv_rows(Path(batting)/file)}
+    bowling=Path(bowling)
+    meta={r['Bowler']:r for r in csv_rows(bowling/'all_bowlers.csv')}
+    top10=[r['Bowler'] for r in csv_rows(bowling/'top10.csv')]
+    lists=data['disciplines']['bowling']['lists']
+    pooled=lists['pooledUplift']
+    assert [p['name'] for p in pooled[:10]]==top10,'pooled funnel order must match the official top 10'
+    for p in pooled:
+        r=meta[p['name']]
+        for field,column in [('uplift','BPF_adj'),('ciLow','CI_low'),('ciHigh','CI_high'),('pressure','rae100_pressure'),('normal','rae100_normal'),('overall','rae100_overall'),('pressureBalls','pressure_balls'),('normalBalls','normal_balls')]:
+            assert same(p[field],r[column]),('pooledUplift',p['id'],field);checked+=1
+        assert p['eligible']==(r['eligible']=='True')
+        assert p['top10']==(r['selected']=='True')
+    for p in lists['overall']:
+        r=meta[p['name']]
+        for field,column in [('overall','rae100_overall'),('pressure','rae100_pressure'),('normal','rae100_normal')]:
+            assert same(p[field],r[column]),('overall',p['id'],field);checked+=1
+    for key in ['chasePressureLevel','firstInningsPressureLevel','chasePressureUplift','firstInningsPressureUplift']:
+        for p in lists[key]:
+            assert p['name'] in meta,(key,p['name']);checked+=1
+    print(f'Integrity passed: {len(players)} batters, six bowling views, {checked} numeric comparisons plus membership/order checks.')
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--dataset',required=True);p.add_argument('--batting',required=True);p.add_argument('--bowling',required=True);a=p.parse_args();check(a.dataset,a.batting,a.bowling)

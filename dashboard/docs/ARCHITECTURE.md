@@ -17,13 +17,13 @@ The four public views use hash-based navigation (`#home`, `#batting`, `#bowling`
 3. The static exporter validates and copies this dataset plus the website assets into `dist/`.
 4. Hosting serves those files without a build/runtime model fit.
 
-No interpolation, recalibration, smoothing or refitting occurs in the website. Batting metrics retain full exported precision until display formatting. Bowling uses the supplied v5 JSON's reported precision. Missing metrics stay null and are never imputed as zero.
+No interpolation, recalibration, smoothing or refitting occurs in the website. Batting metrics retain full exported precision until display formatting. Bowling uses the aggregate exports' reported precision. Missing metrics stay null and are never imputed as zero.
 
 ## Ordering
 
 The batting analysis top 10 is a membership list from the verified selection funnel. The website may reorder those members when another measure is selected. An all-player or sample-qualified view is exploratory and is not a replacement for the funnel.
 
-Bowling source order combines runs and wickets across five wicket values. Sorting by the runs component is a separate, explicitly labeled exploratory choice. The chart shows the runs component for the top composite-ordered players, so its point values need not decrease down the chart.
+Bowling published order follows the selection funnel (shrunk uplift). Sorting by the raw runs value is a separate, explicitly labeled exploratory choice.
 
 ## Security boundary
 

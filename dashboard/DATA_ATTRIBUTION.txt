@@ -1,13 +1,16 @@
 Data attribution
 
-Historical ball data: Cricsheet IPL JSON
+Historical ball data: supplied CSV export of Cricsheet matches (IPL, T20I and
+Asia Cup tournaments, 2022-26). Original source:
 https://cricsheet.org/downloads/
 https://cricsheet.org/format/json/
 
 The underlying Cricsheet data is made available under the Open Data Commons Attribution License (ODC-By) v1.0:
 https://opendatacommons.org/licenses/by/1-0/
 
-Derived summaries are transformed analysis outputs, not original Cricsheet delivery files.
+Rankings are based on the matches in the supplied CSV, using the ranking method
+described in the repository README. Derived summaries are transformed analysis
+outputs, not original Cricsheet delivery files.
 
 Bowling historical reporting labels: aadi-jn/indian-premier-league, joined by registry ID for reporting only, as recorded in the supplied analysis provenance:
 https://github.com/aadi-jn/indian-premier-league/blob/main/docs/data_dictionary.md

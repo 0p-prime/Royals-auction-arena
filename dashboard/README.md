@@ -1,6 +1,6 @@
 # Royals pressure lab
 
-A read-only cricket analysis website for exploring historical batting and bowling performance in IPL 2022-2026. It keeps performance under pressure separate from improvement over a player's own normal level. The published analysis lists are preserved; custom filters are explicitly exploratory.
+A read-only cricket analysis website for exploring historical batting and bowling performance across the supplied 2022-26 matches (IPL, T20I and Asia Cup tournaments). It keeps performance under pressure separate from improvement over a player's own normal level. The published analysis lists are preserved; custom filters are explicitly exploratory.
 
 ## Run locally
 
@@ -13,16 +13,17 @@ npm start
 
 The populated distribution includes `private/dataset.json`. A code-only checkout intentionally shows an import screen until a verified dataset is provided. No synthetic sample results are used.
 
-To import the original aggregate exports, Python 3 is sufficient:
+To build the dataset from the analysis aggregate exports, Python 3 with pandas is sufficient:
 
 ```sh
-python3 scripts/import_data.py \
-  --batting /path/to/batting/outputs \
-  --bowling /path/to/bowling/outputs/bowler_model_data_v5.json
+python3 scripts/build_dataset.py \
+  --batting-dir /path/to/batting/outputs \
+  --bowling-dir /path/to/bowling/outputs \
+  --out private/dataset.json
 npm start
 ```
 
-The importer does not fit models or process delivery-level data. Batting requires `batsman_ppf.csv`, `shortlist_35.csv`, `top10_batsmen.csv` and `top10_role_quota.csv`. Bowling requires the verified v5 JSON, not v3/v4 artifacts. If you have the populated distribution, no import step is needed.
+The builder does not fit models. Batting requires `batsman_ppf.csv`, `shortlist_35.csv`, `top10_batsmen.csv` and `top10_role_quota.csv`. Bowling requires `all_bowlers.csv`, `top10.csv` and `delivery_scores.csv.gz`; the innings-specific views are direct aggregations of the same scored deliveries. If you have the populated distribution, no build step is needed.
 
 ## Build the public website
 
@@ -41,16 +42,16 @@ Home, Batting, Bowling and Methodology are separate hash-routed views. Navigatio
 ## Features
 
 - Batting: analysis top 10, role-balanced 3/4/3 list, shortlist, sample-qualified pool, active eligible pool and all exported players.
-- Bowling: overall, chase pressure, chase uplift, first-innings pressure and first-innings uplift. Innings-specific lists are never combined.
+- Bowling: the published funnel list (both innings), overall, chase pressure, chase uplift, first-innings pressure and first-innings uplift. The funnel list is the published ranking; the innings views are supplementary lenses on the same delivery scores.
 - Role/style, name/team and minimum-sample filters; side-by-side player comparison; CSV export of the current filter.
 - Responsive forest charts and phone-sized player cards, with accessible text equivalents and keyboard controls.
-- Bowling composite source order and optional runs-component ordering. Rank ranges across wicket values remain visible.
+- Published funnel order for each bowling view, with optional runs-only ordering.
 
 ## Interpretation
 
-This is descriptive historical analysis, not a future-performance model, psychological-pressure measure or auction simulator. Team labels are historical records, not retention status or auction eligibility. Batting legal-ball counts and bowling delivery-attempt counts are different denominators. Do not compare score magnitudes across disciplines.
+This is descriptive historical analysis of the supplied matches. Team labels are historical records, not retention status or auction eligibility. Batting legal-ball counts and bowling legal-ball counts are different denominators; do not compare score magnitudes across disciplines.
 
-Only Samson's 90% uplift interval among the batting analysis top 10 excludes zero. The role-balanced list includes negative-uplift Rinku Singh and Stubbs to fill finisher slots. Batting new/settled players are combined without a balls-faced adjustment. Bowling intervals cover the runs component only, not wickets or composite rank. Full definitions and limitations are visible on the website and in [docs/METRICS.md](docs/METRICS.md).
+Measured consistency across match samples is weak (split-half uplift correlation -0.00 for all batsmen and -0.02 for eligible batsmen; bowling alternate-match rank correlation 0.05), so exact placings are approximate and depend on the method's cutoffs, floors and selection rules. Among the batting analysis top 10, only TH David's 90% uplift interval excludes zero. Role-balanced quotas can include batters whose uplift sits below zero when a role needs representation. Full definitions and limitations are visible on the website and in [docs/METRICS.md](docs/METRICS.md).
 
 ## Tests
 
@@ -72,7 +73,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DATA_CONTRACT.md](docs/D
 
 ## Data attribution
 
-Ball-by-ball source: [Cricsheet IPL JSON](https://cricsheet.org/downloads/), under the Open Data Commons Attribution License. Bowling historical team/style reporting metadata is sourced from [aadi-jn/indian-premier-league](https://github.com/aadi-jn/indian-premier-league/blob/main/docs/data_dictionary.md) as recorded in the supplied analysis provenance. These labels are not current player availability. The data attribution notice is included with static exports.
+Ball-by-ball source: supplied CSV export of [Cricsheet](https://cricsheet.org/downloads/) matches (IPL, T20I and Asia Cup tournaments, 2022-26), under the Open Data Commons Attribution License. Bowling historical team/style reporting metadata is sourced from [aadi-jn/indian-premier-league](https://github.com/aadi-jn/indian-premier-league/blob/main/docs/data_dictionary.md) as recorded in the supplied analysis provenance. These labels are not current player availability. The data attribution notice is included with static exports.
 
 ## Pitch assistant
 

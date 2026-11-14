@@ -1,7 +1,7 @@
-# IPL Batting Pressure Analysis (2022-26)
+# Batting Pressure Analysis (supplied matches, 2022-26)
 
-Ranks IPL batsmen by pressure performance vs normal performance. Descriptive analysis of
-recorded data, not future prediction.
+Ranks batsmen in the supplied matches (IPL, T20I and Asia Cup tournaments) by pressure
+performance vs normal performance. Descriptive analysis of recorded data.
 
 ## Setup
 
@@ -26,7 +26,8 @@ The source distribution does not contain raw match data or intermediate parquet 
 9. `python3 validate.py`      - temporal/split-half/baseline/stability diagnostics (Step 9)
 10. `python3 -m pytest tests/ -q` - 18 tests (leakage, buckets, shrinkage, funnel, calibration, regression)
 
-Raw data: `IPL_JSON_DIR` or `data/raw/ipl_json` (public Cricsheet). Config: config.yaml. Outputs: outputs/.
+Raw data for the published run: the supplied ball-by-ball CSV (867 playable fixtures, 2022-26),
+not stored in the repository. Config: config.yaml. Outputs: outputs/.
 Deviations from the original written spec: no batter-hand/bowler-type features (absent
 in Cricsheet); centered RAE (dismissal minus expected dismissal); decile monotonicity
 treated as a diagnostic (passed strictly anyway).
