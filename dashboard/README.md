@@ -37,7 +37,7 @@ The entire `dist/` directory becomes public. Inspect `dataset.json` before deplo
 
 ## Website navigation
 
-Home, Batting, Bowling and Methodology are separate hash-routed views. Navigation works with browser back/forward, direct links and keyboard controls. Homepage columns, player summaries and comparisons share a twelve-column desktop grid that stacks on phones. Technical validation and scope details live in Methodology; charts retain their metric and interval labels.
+Home, Batting, Bowling, Squad and Methodology are separate hash-routed views. Navigation works with browser back/forward, direct links and keyboard controls. Homepage columns, player summaries and comparisons share a twelve-column desktop grid that stacks on phones. Technical validation and scope details live in Methodology; charts retain their metric and interval labels.
 
 ## Features
 
@@ -46,6 +46,10 @@ Home, Batting, Bowling and Methodology are separate hash-routed views. Navigatio
 - Role/style, name/team and minimum-sample filters; side-by-side player comparison; CSV export of the current filter.
 - Responsive forest charts and phone-sized player cards, with accessible text equivalents and keyboard controls.
 - Published funnel order for each bowling view, with optional runs-only ordering.
+
+## Squad and purse planner
+
+The Squad page (`web/squad.js`, logic in `web/squad-core.js`) is a practice and tracking tool for selectors. Amounts are typed in by the user in rupees crore; no purse, cap or squad rule is built in. It supports two purse modes (auction purse after retentions, or total budget before retentions) so retained prices are never counted twice, optional prices shown as unknown, Indian/overseas/unset counts, multi-role tags, a retained-squad import, edit and undo, and JSON/CSV backup. The plan is saved in the browser only.
 
 ## Interpretation
 

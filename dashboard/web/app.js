@@ -116,12 +116,12 @@ try{const response=await fetch('./dataset.json');if(!response.ok)throw new Error
 catch(err){$('dashboard').hidden=true;$('loadError').hidden=false;$('errorText').textContent=err.message;$('period').textContent='No dataset loaded';}
 
 function route(){
- const hash=location.hash.slice(1);activePage=['home','batting','bowling','methodology'].includes(hash)?hash:'home';
- document.querySelector('.intro').hidden=activePage!=='home';$('homeContent').hidden=activePage!=='home';
+ const hash=location.hash.slice(1);activePage=['home','batting','bowling','squad','methodology'].includes(hash)?hash:'home';
+ document.querySelector('.intro').hidden=activePage!=='home';$('homeContent').hidden=activePage!=='home';const sq=activePage==='squad';$('squadSection').hidden=!sq;
  document.querySelectorAll('[data-page]').forEach(a=>{a.classList.toggle('selected',a.dataset.page===activePage);if(a.dataset.page===activePage)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  if(!data)return;
  if(activePage==='home')$('period').textContent='IPL 2022-2026 · Batting + bowling';
- $('dashboard').hidden=activePage==='home';document.querySelector('.tabs').hidden=true;
+ $('dashboard').hidden=activePage==='home'||sq;document.querySelector('.tabs').hidden=true;
  const method=activePage==='methodology';
  $('analysisHeading').hidden=method;
  $('analysisTitle').textContent=activePage==='bowling'?'The bowling arena.':'The batting arena.';
