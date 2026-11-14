@@ -181,34 +181,59 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 @media(max-width:1000px) and (min-width:701px){.arena-logo{width:170px}}
 @media(max-width:700px){.masthead{padding-top:10px;padding-bottom:10px}.arena-logo{width:164px}.site-nav{margin-top:6px;margin-bottom:12px}}
 
-/* v8: animated 3D cricket ground on the home page, 3D card touches, single-line control focus. */
-.arena3d{margin:0 0 42px;background:linear-gradient(150deg,#101d52,#1c2f6e 60%,#253a85);border-radius:26px;border:1.5px solid #33468a;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:stretch}
-.arena3d-head{padding:34px 8px 34px 34px;color:#fff;align-self:center}
-.arena3d-head .eyebrow{color:#ff9bcf}
-.arena3d-head h2{color:#fff;font-size:34px;margin-bottom:14px}
-.arena3d-head>p:last-child{color:#c9d3ef;font-size:13.5px;max-width:340px;margin:0}
-.arena3d-stage{position:relative;min-height:430px;background:radial-gradient(ellipse at 50% 120%,#2c439a 0,#16265e00 70%)}
-#groundCanvas{display:block;width:100%;height:100%;min-height:430px;cursor:grab;touch-action:none}
-#groundCanvas:active{cursor:grabbing}
-.arena3d-stage.no-webgl #groundCanvas{display:none}
-.arena3d-stage.no-webgl:after{content:'3D view needs a browser with WebGL';position:absolute;inset:0;display:grid;place-items:center;color:#c9d3ef;font-size:13px}
-.arena3d-badge{position:absolute;left:16px;bottom:14px;font-size:9px;font-weight:750;letter-spacing:.16em;color:#ffd6ea;background:#101d52b8;border:1px solid #4d5f9e;border-radius:20px;padding:7px 13px;pointer-events:none}
-@media(max-width:1000px){.arena3d{grid-template-columns:1fr}.arena3d-head{padding:26px 24px 6px}.arena3d-head>p:last-child{max-width:none}.arena3d-stage,#groundCanvas{min-height:340px}}
-@media(max-width:700px){.arena3d{border-radius:20px;margin-bottom:26px}.arena3d-head h2{font-size:27px}.arena3d-stage,#groundCanvas{min-height:280px}.arena3d-badge{font-size:8px;padding:6px 10px}}
-
-/* Gentle 3D depth on the home cards and a soft float on the sport icons. */
-.home-grid{perspective:1400px}
-.home-card{transition:transform .3s ease,box-shadow .3s ease,filter .2s ease;transform-style:preserve-3d}
+/* v9: grid-aligned surface effects across the site, single-line control focus. */
+body{background-image:linear-gradient(#16265e0d 1px,transparent 1px),linear-gradient(90deg,#16265e0d 1px,transparent 1px);background-size:44px 44px;background-position:-1px -1px}
+.stat,.home-card,.board,.compare-section,.method-section,.compare-card,.chart-panel,.player-card{position:relative}
+.home-card,.stat,.compare-card,.chart-panel,.player-card{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.home-card:after,.compare-card:after,.chart-panel:after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--pink),var(--blue));transform:scaleX(0);transform-origin:left;transition:transform .35s ease;border-radius:3px 3px 0 0;pointer-events:none}
+.home-card:hover:after,.compare-card:hover:after,.chart-panel:hover:after{transform:scaleX(1)}
+.home-card:hover,.stat:hover,.compare-card:hover,.chart-panel:hover,.player-card:hover{transform:translateY(-4px);box-shadow:0 18px 32px -16px #17245459;border-color:#9fabd2}
+tbody tr{transition:background .15s ease,box-shadow .15s ease}
+tbody tr:hover{background:#fff0f7;box-shadow:inset 3px 0 0 var(--pink)}
 @media(prefers-reduced-motion:no-preference){
- .home-card:hover{transform:translateY(-7px) rotateX(5deg) rotateY(-4deg);box-shadow:0 26px 44px -18px #17245466;filter:none}
- .method-card:hover{box-shadow:0 26px 44px -18px #79513459}
- .sport-icon{animation:iconFloat 4.5s ease-in-out infinite}
- @keyframes iconFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-7px) rotate(-3deg)}}
- .stat{transition:transform .25s ease,box-shadow .25s ease}
- .stat:hover{transform:translateY(-4px);box-shadow:0 16px 30px -14px #1724544d}
+ @keyframes gridRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+ .home-card,.stat,.compare-card,.player-card,.board,.compare-section,.method-section,.chart-panel{animation:gridRise .55s ease both}
+ .home-card:nth-child(2),.stat:nth-child(2),.compare-card:nth-child(2){animation-delay:.08s}
+ .home-card:nth-child(3),.stat:nth-child(3){animation-delay:.16s}
+ .stat:nth-child(4){animation-delay:.24s}
 }
-
-/* Single clean line on tapped/focused controls (no double ring over the border). */
 .filters select:focus-visible,.filters input:focus-visible,.compare-controls select:focus-visible{outline:none;border-color:var(--pink);box-shadow:0 0 0 1.5px var(--pink)}
 .subtabs button:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pink)}
 .subtabs button.active:focus-visible{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pink),0 6px 14px -6px #c8006a}
+
+/* v11: Ask Pitch AI gets depth: a turning 3D character, layered label and an opening panel. */
+.ai-fab{perspective:520px}
+.ai-bot-character{transform-style:preserve-3d;animation:pitch-turn 7s ease-in-out infinite;filter:drop-shadow(0 10px 8px #19296330) drop-shadow(0 2px 0 #ffffff)}
+.ai-bot-label{box-shadow:0 1px 0 #fff inset,0 3px 0 #e9c4d8,0 10px 20px -6px #19296340;transform:translateZ(24px);transition:transform .25s ease,box-shadow .25s ease}
+.ai-fab:hover .ai-bot-label{transform:translateY(-3px) translateZ(34px);box-shadow:0 1px 0 #fff inset,0 5px 0 #e9c4d8,0 16px 24px -8px #19296359}
+.ai-fab:hover .ai-bot-character{animation-play-state:paused;transform:rotateY(-18deg) rotateX(8deg) scale(1.06)}
+.ai-fab:focus-visible{outline:none}
+.ai-fab:focus-visible .ai-bot-label{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pink)}
+.ai-panel{transform-origin:100% 100%;box-shadow:0 30px 60px -20px #19296366,0 8px 0 -4px #eadff0}
+@keyframes pitch-turn{0%,100%{transform:rotateY(-14deg) rotateX(3deg)}50%{transform:rotateY(14deg) rotateX(-2deg)}}
+@keyframes ai-open{from{opacity:0;transform:perspective(900px) rotateX(-14deg) rotateY(8deg) scale(.92)}to{opacity:1;transform:perspective(900px) none}}
+@media(prefers-reduced-motion:no-preference){.ai-panel:not([hidden]){animation:ai-open .4s cubic-bezier(.2,.8,.2,1) both}}
+@media(prefers-reduced-motion:reduce){.ai-bot-character{animation:none;transform:rotateY(-10deg)}}
+
+/* Auction news: dated, sourced cards on the same grid as the home page. */
+.news{background:#fff;border:1.5px solid var(--line);border-radius:26px;box-shadow:var(--shadow);padding:32px;margin:26px 0}
+.news-head{display:flex;justify-content:space-between;align-items:end;gap:18px;flex-wrap:wrap}
+.news-head h2{margin:0}
+.news-stamp{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.news-note{font-size:13px;color:var(--muted);max-width:760px;margin:12px 0 22px}
+.news-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.news-card{position:relative;display:flex;flex-direction:column;gap:8px;background:#fafbff;border:1.5px solid var(--line);border-radius:18px;padding:18px;border-top:4px solid var(--blue);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.news-card.reported{border-top-color:var(--pink)}
+.news-card:hover{transform:translateY(-4px);box-shadow:0 18px 32px -16px #17245459;border-color:#9fabd2}
+.news-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.news-badge{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;padding:4px 10px;background:#e4f2ec;color:#246755}
+.news-card.reported .news-badge{background:#fff0f7;color:#bd005c}
+.news-date{font-size:12px;color:var(--muted)}
+.news-card h3{font-size:16px;line-height:1.3;margin:2px 0 0}
+.news-card p{font-size:13px;color:var(--muted);margin:0;flex:1}
+.news-link{font-size:12px;font-weight:750;color:var(--accent);text-decoration:none;margin-top:6px}
+.news-link:hover,.news-link:focus-visible{text-decoration:underline}
+.news-empty{color:var(--muted);font-size:13px}
+@media(max-width:1000px){.news-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.news{padding:20px 14px;border-radius:20px}.news-list{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){.news-card{animation:gridRise .55s ease both}.news-card:nth-child(2){animation-delay:.06s}.news-card:nth-child(3){animation-delay:.12s}.news-card:nth-child(4){animation-delay:.18s}.news-card:nth-child(5){animation-delay:.24s}.news-card:nth-child(6){animation-delay:.3s}}
