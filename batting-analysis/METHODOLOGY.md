@@ -65,8 +65,10 @@ unconstrained top 10 (the three opener slots are already filled).
   without facing still holds position 2. Role labels/quotas use this.
 - Retired hurt/out (13 rows) no longer count as striker dismissals in any target or
   in E[dismissal].
-- DLS chase innings (414 legal rows, 4 matches) excluded from the modeling frame:
-  Cricsheet carries no revised target, so RRR would be false.
+- DLS chase innings: the published run (2026-11-14) includes rain-affected chases,
+  scored against the revised target and the balls allotted at each delivery
+  (allotments recorded per match and per segment). An earlier 2026-11-12 build
+  excluded 414 legal rows from 4 matches because its source carried no revised target.
 - Wicket penalty is a pure LOO (over, wkts+1) cell lookup - identical for dismissal
   and non-dismissal rows at the same state (test enforces this).
 - Temporal diagnostic: train BPI from within-train NESTED OOF (not in-sample);

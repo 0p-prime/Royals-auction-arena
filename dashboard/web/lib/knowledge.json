@@ -23,7 +23,7 @@
    ],
    [
     "Data exclusions",
-    "200,964 delivery rows in scope, 192,415 legal. No-ball batter runs and non-legal-ball dismissals are excluded. Retired hurt/out does not count as striker dismissal. 1,347 DLS-affected chase rows are excluded because revised targets were unavailable."
+    "200,964 delivery rows in scope, 192,415 legal. No-ball batter runs and non-legal-ball dismissals are excluded. Retired hurt/out does not count as striker dismissal. Rain-affected chases are included and scored against the revised target and the balls allotted at each delivery. Super overs are not part of the analysis."
    ]
   ],
   "caveat": "Rankings compare how players actually performed on past matches in the supplied data under the model-defined pressure measure. Exact placings depend on the method's pressure cutoffs, sample floors and selection rules, so treat fine rank differences as approximate. The displayed 90% intervals describe the shrunk uplift estimate, not overall uncertainty."

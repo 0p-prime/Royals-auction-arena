@@ -61,9 +61,10 @@ at `data/Cricsheet_LICENSE.txt`). Links and checksums in `SOURCES.json`.
 867 playable fixtures from 2022-26. 687 fixtures from 2023-26 are scored
 (158,496 deliveries); the 180 fixtures of the 2022 season are warmup
 training and historical profiles only and carry no out-of-sample scores.
-Exclusions for revised targets, reduced overs, no results and missing
-innings are logged (`excluded_matches.csv`, `source_match_manifest.csv`).
-Both regular innings are used; super overs are excluded.
+Fixtures with no play and super overs are excluded; both regular
+innings are used. Rain-affected chases are scored against the revised
+target and the balls allotted at each delivery. The exclusion log is
+`excluded_matches.csv`, with `source_match_manifest.csv` alongside.
 
 The loader accepts the Cricsheet JSON ZIP or JSON directories directly.
 CSV aliases are autodetected; ambiguous extras, wicket credit, sequence,
