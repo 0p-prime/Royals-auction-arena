@@ -14,7 +14,7 @@ MPI_FEATURES = ["crr", "rrr", "rr_crr_gap", "is_chase", "wickets_lost", "wickets
 LPI_RAW = ["dots_last12", "wkts_last18", "settledness", "bowler_eco", "bowler_sr", "batting_position"]
 
 def prep(df):
-    m = df[df["is_legal"] & ~df["dls_chase"]].copy()
+    m = df[df["is_legal"]].copy()
     m = pd.get_dummies(m, columns=["phase"], dtype=int)
     for p in ["phase_powerplay", "phase_middle", "phase_death"]:
         if p not in m.columns:

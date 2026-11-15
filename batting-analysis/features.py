@@ -35,7 +35,8 @@ def build_features(df, cfg):
         lambda x: (x["runs_batter"] + x["runs_extras"]).sum(), include_groups=False).unstack()
     inn_tot.columns = [f"inn{c}_total" for c in inn_tot.columns]
     df = df.merge(inn_tot.reset_index(), on="match_id", how="left")
-    df["target_score"] = np.where(df["innings"] == 2, df["inn1_total"] + 1, np.nan)
+    chase_target = df["target_in_force"] if "target_in_force" in df.columns else df["inn1_total"] + 1
+    df["target_score"] = np.where(df["innings"] == 2, chase_target, np.nan)
 
     overs_done = df["legal_before"] / 6.0
     overs_left = (total_balls - df["legal_before"]) / 6.0
@@ -175,7 +176,7 @@ def add_targets(df):
         kind = inn["dismissal_kind"].to_numpy()
         dis = np.where(np.isin(kind, list(NON_DISMISSAL)), "", dis)  # retired != dismissal
         y6 = np.zeros(len(inn))
-        for off in range(6):
+        for off in range(min(6, len(inn))):
             shifted = np.concatenate([dis[off:], [""] * off]) if off else dis.copy()
             y6 = np.maximum(y6, (shifted == bat).astype(float))
         legal.loc[inn.index, "y_out_6"] = y6

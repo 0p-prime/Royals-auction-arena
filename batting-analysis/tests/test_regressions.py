@@ -10,13 +10,13 @@ def test_retired_not_dismissal_target():
     for _, r in ret.iterrows():
         assert r["y_dot_or_out"] == int(r["runs_batter"] == 0)
 
-def test_dls_chase_excluded_from_modeling():
+def test_rain_affected_chases_stay_in_modeling():
+    """Rain-affected chases are modelled against the target in force, not dropped."""
     from mpi_lpi_models import prep
     feat = pd.read_parquet("data/interim/features.parquet")
     m = prep(feat)
-    assert not m["dls_chase"].any()
-    n_excl = int((feat["is_legal"] & feat["dls_chase"]).sum())
-    assert n_excl == 414  # 4 DLS matches; disclosed in METHODOLOGY.md
+    assert len(m) == int(feat["is_legal"].sum())
+    assert m["dls_chase"].any()
 
 def test_position_first_appearance_either_role():
     """Both openers (incl. the non-facing one) get positions 1 and 2."""
@@ -61,7 +61,7 @@ def test_penalty_loo_excludes_own_match():
     from data_loader import load_config
     feat = pd.read_parquet("data/interim/features.parquet")
     rae = pd.read_parquet("data/interim/rae.parquet")
-    d = feat[feat["is_legal"] & ~feat["dls_chase"]]
+    d = feat[feat["is_legal"]]
     st = d.groupby(["match_id", "innings", "batter"], sort=False).agg(
         arr_over=("over", "min"), arr_wkts=("wkts_before", "min"),
         stint_runs=("runs_batter", "sum")).reset_index()

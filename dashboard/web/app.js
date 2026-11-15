@@ -120,7 +120,7 @@ function route(){
  document.querySelector('.intro').hidden=activePage!=='home';$('homeContent').hidden=activePage!=='home';const sq=activePage==='squad';$('squadSection').hidden=!sq;
  document.querySelectorAll('[data-page]').forEach(a=>{a.classList.toggle('selected',a.dataset.page===activePage);if(a.dataset.page===activePage)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
  if(!data)return;
- if(activePage==='home')$('period').textContent='IPL 2022-2026 · Batting + bowling';
+ if(activePage==='home')$('period').textContent='IPL, T20I and Asia Cup 2022-2026 · Batting + bowling';
  $('dashboard').hidden=activePage==='home'||sq;document.querySelector('.tabs').hidden=true;
  const method=activePage==='methodology';
  $('analysisHeading').hidden=method;

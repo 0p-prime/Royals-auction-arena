@@ -16,7 +16,7 @@ def load(path, cfg):
         if df[list(ALIASES)].isna().any().any():raise ValueError('Missing values in critical canonical CSV fields.')
         df['date']=pd.to_datetime(df.date).dt.strftime('%Y-%m-%d');df['season']=df.season.astype(str).str[:4].astype(int)
         df=df[(df.season>=cfg['warmup_year'])&(df.season<=max(cfg['years']))].sort_values(['date','match_id','innings','sequence'])
-        df['legal']=(df.wides.eq(0)&df.noballs.eq(0)).astype(int);df['boundary']=df.bat_runs.isin([4,6]).astype(int);df['importance']=.5
+        df['legal']=(df.wides.eq(0)&df.noballs.eq(0)).astype(int);df['boundary']=df.bat_runs.isin([4,6]).astype(int);df['importance']=df['importance'] if 'importance' in df else .5
         df['charged']=df.bat_runs+df.wides+df.noballs
         return df,{'format':'CSV','mapping':mapping,'warnings':['CSV must represent prevalidated standard 20-over innings; use JSON for automatic match-condition checks.']}
     if p.is_dir(): files=[(str(f),f.read_bytes()) for f in p.glob('*.json')]

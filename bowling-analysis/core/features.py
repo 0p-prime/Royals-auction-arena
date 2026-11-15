@@ -23,15 +23,15 @@ def build(df,cfg,metadata=None):
                 pr=typeprofiles[(r['batter'],typ)] if typ!='Unknown' else profiles[r['batter']]
                 if pr[1]<cfg['min_profile_balls']:pr=profiles[r['batter']]
                 sr=100*pr[0]/pr[1] if pr[1]>=cfg['min_profile_balls'] else cfg['fallback_batter_sr']
-                crr=6*runs/balls if balls else 0.;remaining=max(cfg['innings_balls']-balls,1);rrr=6*max(r['target']-runs,0)/remaining if ino==2 else 0.
+                crr=6*runs/balls if balls else 0.;remaining=max(r.get('innings_balls',cfg['innings_balls'])-balls,1);rrr=6*max(r['target']-runs,0)/remaining if ino==2 else 0.
                 gap=(crr-rrr) if cfg['chase_mode']=='intent' else (rrr-crr)
                 phase='powerplay' if r['over']<cfg['powerplay_end'] else ('death' if r['over']>=cfg['death_start']-1 else 'middle')
                 # A new spell starts after this bowler misses their next alternating over.
                 if r['bowler'] in last_over and r['over']-last_over[r['bowler']]>cfg['spell_max_over_gap']:spells[r['bowler']].clear()
                 last_over[r['bowler']]=r['over']
-                out.append(dict(r, wickets_in_hand=max(10-lost,0),crr=crr,rrr=rrr,chase_gap=float(np.clip(gap/cfg['rate_scale'],0,1)) if ino==2 else 0.,first_projection_gap=crr*(cfg['innings_balls']/6)-par if ino==1 else 0.,phase_weight=cfg['phase_weight'] if phase!='middle' else 1.,recent_boundaries=sum(recent)/cfg['recent_window'],set_batter=int(batterballs[r['batter']]>cfg['set_batter_balls']),batter_sr=sr,spell_runs=sum(spells[r['bowler']]),phase=phase,type=typ,hand=hand,pre_runs=runs,pre_balls=balls,par=par))
+                out.append(dict(r, wickets_in_hand=max(10-lost,0),crr=crr,rrr=rrr,chase_gap=float(np.clip(gap/cfg['rate_scale'],0,1)) if ino==2 else 0.,first_projection_gap=crr*(r.get('innings_balls',cfg['innings_balls'])/6)-par if ino==1 else 0.,phase_weight=cfg['phase_weight'] if phase!='middle' else 1.,recent_boundaries=sum(recent)/cfg['recent_window'],set_batter=int(batterballs[r['batter']]>cfg['set_batter_balls']),batter_sr=sr,spell_runs=sum(spells[r['bowler']]),phase=phase,type=typ,hand=hand,pre_runs=runs,pre_balls=balls,par=par))
                 runs+=r['total'];balls+=r['legal'];lost+=r['dismissals'];recent.append(r['boundary']);spells[r['bowler']].append(r['charged']);batterballs[r['batter']]+=int(not r['wides']);updates.append((r['batter'],typ,r['bat_runs'],int(not r['wides'])))
-            if ino==1 and (balls>=cfg['innings_balls'] or lost>=10):parupdates.append((venue,runs))
+            if ino==1 and r.get('innings_balls',cfg['innings_balls'])>=120 and (balls>=120 or lost>=10):parupdates.append((venue,runs))
         for batter,typ,r,b in updates:profiles[batter][0]+=r;profiles[batter][1]+=b;typeprofiles[(batter,typ)][0]+=r;typeprofiles[(batter,typ)][1]+=b
         for v,p in parupdates:pars[v].append(p);globalpar.append(p)
     return pd.DataFrame(out)

@@ -58,7 +58,7 @@ def fit_expected(m, seed):
 if __name__ == "__main__":
     cfg = yaml.safe_load(open("config.yaml"))
     m = pd.read_parquet("data/interim/bpi.parquet")
-    m = m[m["is_legal"] & ~m["dls_chase"]].reset_index(drop=True)
+    m = m[m["is_legal"]].reset_index(drop=True)
     print("leave-one-match-out wicket penalty...", flush=True)
     pen = loo_remaining_runs(m)
     m = m.merge(pen, on=["match_id", "innings", "over", "ball_seq"], how="left")
