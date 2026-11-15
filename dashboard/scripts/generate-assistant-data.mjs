@@ -36,8 +36,8 @@ const dataset = JSON.parse(readFileSync(input, 'utf8'));
 const bat = dataset.disciplines.batting;
 const bowl = dataset.disciplines.bowling;
 
-const LIST_ORDER = ['overall', 'chasePressureLevel', 'chasePressureUplift', 'firstInningsPressureLevel', 'firstInningsPressureUplift'];
-const LEVEL_FIELD = { overall: 'overall', chasePressureLevel: 'pressure', chasePressureUplift: 'uplift', firstInningsPressureLevel: 'pressure', firstInningsPressureUplift: 'uplift' };
+const LIST_ORDER = ['pooledUplift', 'overall', 'chasePressureLevel', 'chasePressureUplift', 'firstInningsPressureLevel', 'firstInningsPressureUplift'];
+const LEVEL_FIELD = { pooledUplift: 'uplift', overall: 'overall', chasePressureLevel: 'pressure', chasePressureUplift: 'uplift', firstInningsPressureLevel: 'pressure', firstInningsPressureUplift: 'uplift' };
 
 const r1 = x => (typeof x === 'number' && Number.isFinite(x)) ? Math.round(x * 10) / 10 : (x ?? null);
 

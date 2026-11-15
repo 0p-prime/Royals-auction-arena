@@ -16,7 +16,7 @@ let dayKey = '', dayCount = 0;
 
 const FACTORS = `
 FACTOR GUIDE (explain these in plain, friendly English; every definition comes from the site's methodology text below)
-- Pressure situation: for bowling, a ball where the model scores the chasing side as strongly placed to win (0.6-0.9 band on its calibration-adjusted scale; near-decided states above 0.95 or below 0.05 are removed); first-innings has its own version. For batting, pressure and normal are distinct BPI buckets as the batting method describes.
+- Pressure situation: for bowling, a ball in the top 30% of BoPI, the model's pre-ball boundary risk (70th percentile cutoff taken from the training seasons). For batting, a ball in the top 30% of BPI, the pre-ball chance of a dot ball or striker dismissal. Both disciplines use the same bands: pressure above the 70th percentile, normal below the 55th, middle 15% left out.
 - Normal situation: the player's other balls outside the pressure group, used as the player's own baseline.
 - Pressure level ("Performance under pressure"): runs per 100 balls (batting: runs above expectation; bowling: runs saved vs expectation, per 100 deliveries) in pressure situations.
 - Overall performance: the same measure across all situations.
@@ -29,7 +29,7 @@ FACTOR GUIDE (explain these in plain, friendly English; every definition comes f
 - Role (batting): opener, middle, finisher. Style (bowling): pace or spin.
 - Wickets above expected per 100 deliveries (bowling): positive means more wickets than the model expected.
 - Combined score and rank range (bowling): runs saved plus a wicket value times wickets above expected; the rank range shows how the placing moves when one wicket is valued at 10 to 30 runs.
-- Team: the latest IPL team in the 2022-26 data, not current team, retention or auction status.
+- Team: the latest team observed in the 2022-26 data (club or country), not current team, retention or auction status.
 - BPI, MPI, LPI, RAE, PPF (batting method): BPI is 100 x the probability of a dot ball or striker dismissal on the ball; MPI and LPI are pre-ball features from nested, match-grouped out-of-fold models; RAE is batter runs minus expected runs with a wicket penalty; PPF is recency-weighted pressure RAE per 100 minus normal RAE per 100. Explain these only as defined in the method text.
 `;
 
