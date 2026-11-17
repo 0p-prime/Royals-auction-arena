@@ -1,5 +1,5 @@
 {
- "site": "Royals Auction Arena - Pressure Lab (2022-26 historical analysis of the supplied matches)",
+ "site": "Royals Auction Arena - Pressure Lab (historical performance under pressure; not a retention or auction-buy recommendation)",
  "batting": {
   "seasons": "IPL + T20I + Asia Cups 2022-2026",
   "interval": "90%",
@@ -7,7 +7,7 @@
   "method": [
    [
     "Pressure and performance",
-    "BPI = 100 x probability of a dot or striker dismissal on the current legal ball. Pre-ball MPI/LPI features use nested match-grouped out-of-fold models. RAE is batter runs minus expected runs, minus a state-specific wicket penalty times the centered dismissal residual. Pressure = top 30% of per-match BPI (70th percentile); normal = bottom 55% (55th percentile); the middle 15% is left out. Cutoffs are quantiles over all supplied 2022-26 matches."
+    "BPI = 100 x probability of a dot or striker dismissal on the current legal ball. Pre-ball MPI/LPI features use nested match-grouped out-of-fold models. RAE is batter runs minus expected runs, minus a state-specific wicket penalty times the centered dismissal residual. Pressure = top 30% of delivery BPI (70th percentile); normal = bottom 55% (55th percentile); the middle 15% is left out. Cutoffs are quantiles over all supplied 2022-26 matches."
    ],
    [
     "Uplift and uncertainty",
@@ -89,5 +89,10 @@
    "chasePressureUplift": 73,
    "firstInningsPressureUplift": 108
   }
+ },
+ "selection": {
+  "final": "Sample floors (60 pressure, 200 normal legal balls), active in 2025/26, 35-player skill shortlist on normal and overall ranks, non-negative pressure performance, then shrunk uplift.",
+  "roleVariant": "The batting 3/4/3 role-balanced list is supplementary and can differ from the default analysis top 10.",
+  "scope": "Historical analysis, no auction-availability restriction is imposed by the Round 1 clarification."
  }
 }

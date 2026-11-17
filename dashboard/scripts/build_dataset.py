@@ -55,7 +55,7 @@ def batting():
                 "Exact placings depend on the method's pressure cutoffs, sample floors and selection rules, so treat fine rank differences as approximate. "
                 "The displayed 90% intervals describe the shrunk uplift estimate, not overall uncertainty."),
         method=[
-          ['Pressure and performance','BPI = 100 x probability of a dot or striker dismissal on the current legal ball. Pre-ball MPI/LPI features use nested match-grouped out-of-fold models. RAE is batter runs minus expected runs, minus a state-specific wicket penalty times the centered dismissal residual. Pressure = top 30% of per-match BPI (70th percentile); normal = bottom 55% (55th percentile); the middle 15% is left out. Cutoffs are quantiles over all supplied 2022-26 matches.'],
+          ['Pressure and performance','BPI = 100 x probability of a dot or striker dismissal on the current legal ball. Pre-ball MPI/LPI features use nested match-grouped out-of-fold models. RAE is batter runs minus expected runs, minus a state-specific wicket penalty times the centered dismissal residual. Pressure = top 30% of delivery BPI (70th percentile); normal = bottom 55% (55th percentile); the middle 15% is left out. Cutoffs are quantiles over all supplied 2022-26 matches.'],
           ['Uplift and uncertainty','PPF is recency-weighted pressure RAE100 minus normal RAE100. PPF_adj applies empirical-Bayes shrinkage. The displayed 90% uplift intervals are lambda-scaled match-bootstrap intervals, conditional on the fitted estimator, not posterior intervals. Pressure and overall levels have no intervals supplied in this export.'],
           ['Selection and quotas','Sample-qualified requires at least 60 pressure and 200 normal balls. The analysis top 10 additionally uses an active-player/shortlist/performance funnel. The 3 opener / 4 middle / 3 finisher quota list fills role slots from the same funnel order. Team labels are the latest observed team in the data (club or country), not current retention or auction status.'],
           ['Scope and checks','This is a data-analysis project: rankings describe observed performance on the supplied matches under the defined pressure measure. Internal consistency check: split-half correlation across match samples is -0.00 for all batsmen and -0.02 for eligible batsmen, so fine rank differences are approximate. Baseline comparisons are in-sample. Sparse wicket-penalty cells add unquantified uncertainty.'],
@@ -72,7 +72,8 @@ def bowling():
     meta = allb.set_index('Bowler')
     d = pd.read_csv(BOWL / 'delivery_scores.csv.gz',
                     usecols=['match_id','innings','bowler','legal','weight','rae','bucket'])
-    d = d[d.bucket.isin(['pressure','normal'])]
+    # Keep intermediate-pressure balls in overall exposure and level.
+    total_legal = d.groupby('bowler').legal.sum().to_dict()
 
     def agg(sub):
         out = {}
@@ -87,7 +88,7 @@ def bowling():
         return out
 
     pooled = {r['Bowler']: dict(pb=int(r['pressure_balls']), nb=int(r['normal_balls']),
-                                deliveries=int(r['pressure_balls'] + r['normal_balls']),
+                                deliveries=int(total_legal.get(r['Bowler'], 0)),
                                 pressure=number(r['rae100_pressure']), normal=number(r['rae100_normal']),
                                 overall=number(r['rae100_overall']), uplift=number(r['BPF_adj']),
                                 ciLow=number(r['CI_low']), ciHigh=number(r['CI_high']))
@@ -98,7 +99,7 @@ def bowling():
         pb_min, nb_min = floors
         out = []
         for b, a in source.items():
-            if a['pb'] < pb_min or a['nb'] < nb_min:
+            if (a['deliveries'] < 200 if order_by == 'overall' else a['pb'] < pb_min or a['nb'] < nb_min):
                 continue
             v = a.get(order_by)
             if v is None or not math.isfinite(v):

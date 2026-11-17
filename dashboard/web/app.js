@@ -1,4 +1,4 @@
-import {views,filterPlayers,sourcePlayers,sortedPlayers,fmt,signed,validateDataset} from './core.js';
+import {views,filterPlayers,sourcePlayers,sortedPlayers,fmt,signed,validateDataset,bowlingSelection,intervalFor} from './core.js';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let mdisc='batting',view='rankings',data,discipline='batting',visible=[],current=[],activePage='home';
@@ -7,7 +7,7 @@ const isBowling=()=>discipline==='bowling';
 const value=p=>p[metric()];
 const signClass=v=>v>0?'positive':v<0?'negative':'';
 const interval=p=>p.ciLow!==null&&p.ciHigh!==null?`${signed(p.ciLow)} to ${signed(p.ciHigh)}`:'Not available';
-const hasInterval=()=>isBowling()||metric()==='uplift';
+const hasInterval=()=>Boolean(intervalFor(discipline,metric(),$('innings').value));
 const listKey=()=>metric()==='overall'?'overall':$('innings').value==='pooled'?'pooledUplift':`${$('innings').value==='first'?'firstInnings':'chase'}Pressure${metric()==='uplift'?'Uplift':'Level'}`;
 // Light-only presentation. Clear the previous theme preference on upgrade.
 document.documentElement.dataset.theme='light';
@@ -20,11 +20,10 @@ function reset(){
  $('role').value='all';$('search').value='';$('minBalls').value=0;$('pool').value='top10';
  updateSource();
 }
-function updateSource(){
+function updateSource(event){
  if(isBowling()){
-  if($('innings').value==='pooled'&&metric()!=='uplift')$('metric').value='uplift';
-  if($('innings').value!=='pooled'&&metric()!=='uplift')void 0;
-  if(metric()!=='uplift'&&$('innings').value==='pooled')$('innings').value='chase';
+  const next=bowlingSelection(metric(),$('innings').value,event?.target?.id==='innings'?'innings':'metric');
+  $('metric').value=next.metric;$('innings').value=next.innings;
  }
  const d=data.disciplines[discipline];
  $('inningsLabel').hidden=!isBowling()||metric()==='overall';$('sortLabel').hidden=!isBowling();
@@ -44,7 +43,7 @@ function updateSource(){
  const ranked=sortedPlayers(preferred.length?preferred:current,metric(),discipline,$('sort').value);
  $('compareA').value=current.some(p=>p.id===oldA)?oldA:ranked[0]?.id||'';
  $('compareB').value=current.some(p=>p.id===oldB)?oldB:ranked[1]?.id||ranked[0]?.id||'';
- $('methodology').innerHTML=d.method.map(([title,text])=>`<details><summary>${esc(title)}</summary><p>${esc(text)}</p></details>`).join('')+`<p class="caption">Source: ${esc(d.source)}</p>`;
+ $('methodology').innerHTML=d.method.map(([title,text])=>`<details><summary>${esc(title)}</summary><p>${esc(text.replaceAll('per-match BPI','delivery BPI'))}</p></details>`).join('')+`<p class="caption">Source: ${esc(d.source)}</p>`;
  render();
 }
 function render(){
@@ -53,15 +52,15 @@ function render(){
  visible=sortedPlayers(filterPlayers(base,{role:$('role').value,search:$('search').value,pool:$('pool').value,minBalls:$('minBalls').value}),metric(),discipline,$('sort').value);
  const qualified=current.filter(p=>p.sampleQualified).length;
  const ciCount=visible.filter(p=>p.ciLow>0).length;
- const sum=current.reduce((s,p)=>s+(isBowling()?p.deliveries:p.pressureBalls),0);
+ const sum=current.reduce((s,p)=>s+(isBowling()&&metric()==='overall'?p.deliveries:p.pressureBalls),0);
  const cards=isBowling()?[
-  ['Source cohort',current.length,'Qualified bowlers before filters'],['Legal balls',sum.toLocaleString(),'Pressure legal balls in view'],['Filtered players',visible.length,'Current pool, style and sample filters'],['Runs interval','~95%','Fixed-pressure sensitivity check']
+  ['Source cohort',current.length,'Qualified bowlers before filters'],[metric()==='overall'?'Sample rule':'Pressure legal balls',metric()==='overall'?d.minimumBalls.overall:sum.toLocaleString(),metric()==='overall'?'Published cohort preserved':'Across the source cohort before filters'],['Filtered players',visible.length,'Current pool, style and sample filters'],['Uplift interval',dInterval()||'Not supplied',hasInterval()?'Match-bootstrap, shrunk uplift':'No interval supplied for this view']
  ]:[['Sample-qualified',qualified,d.sampleFloorsText],['Pressure balls',sum.toLocaleString(),'Across all exported batsmen'],['Analysis top 10',current.filter(p=>p.top10).length,'Funnel + uplift ranking'],['Uplift interval','90%','Match-bootstrap, shrunk estimate']];
  $('stats').innerHTML=cards.map(([a,b,c])=>`<div class="stat"><small>${esc(a)}</small><strong>${esc(b)}</strong><span>${esc(c)}</span></div>`).join('');
- let note=isBowling()?`${views[metric()].label}: runs saved ${metric()==='uplift'?'under pressure minus own normal, within matched innings phases':'vs model expectation'}, per 100 legal balls. ${$('sort').value==='published'?'Order follows the analysis funnel for this view.':'Custom runs-only ordering.'} ${metric()==='overall'?'Both innings pooled overall.':$('innings').value==='pooled'?'Both innings pooled; the published final-list funnel (eligibility floors, overall-skill shortlist, uplift ranking).':$('innings').value==='first'?'First innings only.':'Chasing innings only.'} Sample rule: ${d.minimumBalls[listKey()]}.`:
+ let note=isBowling()?`${views[metric()].label}: runs saved ${metric()==='uplift'?'under pressure minus own normal':'vs model expectation'}, per 100 legal balls. ${$('sort').value==='published'?'Order follows the analysis funnel for this view.':'Custom runs-only ordering.'} ${metric()==='overall'?'Both innings pooled overall.':$('innings').value==='pooled'?'Both innings pooled; the published final-list funnel (eligibility floors, overall-skill shortlist, uplift ranking).':$('innings').value==='first'?'First innings only.':'Chasing innings only.'} Sample rule: ${d.minimumBalls[listKey()]}.`:
  `${views[metric()].label}: ${metric()==='uplift'?'EB-shrunk pressure-minus-normal RAE100 (PPF_adj)':'recency-weighted '+(metric()==='pressure'?'pressure-bucket':'overall')+' runs above expectation per 100 legal balls'}. Higher is better; current filters are applied before ordering.`;
  $('measureNote').textContent=note;
- $('caveat').innerHTML=`<p>${isBowling()?'Runs saved against model expectation is the displayed component; the published order follows the analysis funnel.':'Uplift compares pressure performance with their own normal level. The displayed 90% interval describes the shrunk uplift estimate.'}</p>`+(!isBowling()&&$('pool').value==='quota'?'<p><strong>Role note:</strong> role-balanced quotas can include batters whose uplift sits below zero when a role needs representation.</p>':'')+(isBowling()?'<p>Intervals describe the runs component under a fixed-pressure sensitivity check.</p>':'');
+ $('caveat').innerHTML=`<p>${isBowling()?'Scores include runs saved against model expectation and 20 runs per credited wicket. The final pooled order follows shrunk pressure-minus-normal uplift through the selection funnel.':'Uplift compares pressure performance with their own normal level. The displayed 90% interval describes the shrunk uplift estimate.'}</p>`+(!isBowling()&&$('pool').value==='quota'?'<p><strong>Role note:</strong> role-balanced quotas can include batters whose uplift sits below zero when a role needs representation.</p>':'')+(isBowling()?`<p>${hasInterval()?'The 95% match-bootstrap interval describes shrunk pooled uplift, conditional on fitted models and cutoffs.':'No interval is supplied for this bowling view.'}</p>`:'');
  $('resultCount').textContent=`${visible.length} filtered players · ${hasInterval()?ciCount+' positive runs/uplift intervals':'level intervals not supplied'}`;
  $('chartTitle').textContent=isBowling()&&$('sort').value==='published'?'Leading players':'Leading players';
  drawChart(visible.slice(0,10));table();compare();
@@ -81,9 +80,9 @@ function drawChart(players){
  if(hasInterval()&&p.ciLow!==null&&p.ciHigh!==null)svg+=`<line x1="${x(p.ciLow)}" x2="${x(p.ciHigh)}" y1="${y}" y2="${y}" stroke="${col.interval}" stroke-width="2"/><line x1="${x(p.ciLow)}" x2="${x(p.ciLow)}" y1="${y-4}" y2="${y+4}" stroke="${col.interval}"/><line x1="${x(p.ciHigh)}" x2="${x(p.ciHigh)}" y1="${y-4}" y2="${y+4}" stroke="${col.interval}"/>`;
  svg+=`<circle cx="${x(value(p))}" cy="${y}" r="4" fill="${col.dot}"/><text x="${width-3}" y="${y+4}" text-anchor="end" font-size="12" fill="${col.value}">${signed(value(p))}</text>`;});
  $('chart').innerHTML=svg+'</svg>';
- $('chartCaption').textContent=`${isBowling()?'Runs saved per 100 legal balls':'Runs above expectation per 100 legal balls'}. ${hasInterval()?`${dInterval()} ${isBowling()?'runs-component':'uplift'} intervals shown.`:'No level interval supplied in this export.'} Full values are listed below.`;
+ $('chartCaption').textContent=`${isBowling()?'Runs saved per 100 legal balls':'Runs above expectation per 100 legal balls'}. ${hasInterval()?`${dInterval()} uplift intervals shown.`:'No level interval supplied in this export.'} Full values are listed below.`;
 }
-const dInterval=()=>data.disciplines[discipline].interval;
+const dInterval=()=>intervalFor(discipline,metric(),$('innings').value);
 new ResizeObserver(()=>{if(data)drawChart(visible.slice(0,10));}).observe($('chart'));
 function table(){
  if(!visible.length){$('playerTable').innerHTML='<p class="empty">No matching players. Reduce the minimum sample or clear the search.</p>';return;}
@@ -95,9 +94,9 @@ function compare(){
  const players=[$('compareA').value,$('compareB').value].map(id=>current.find(p=>p.id===id));
  $('comparison').innerHTML=players.map((p,i)=>{if(!p)return '<p>No player available.</p>';
  const metrics=isBowling()?[
-  [views[metric()].label+' /100',signed(value(p))],['Runs-component interval ('+dInterval()+')',interval(p)],['Pressure / normal legal balls',`${p.pressureBalls} / ${p.normalBalls}`],...(metric()==='uplift'?[['Compared phases',p.phases]]:[])
+  [views[metric()].label+' /100',signed(value(p))],['Uplift interval',hasInterval()?dInterval()+': '+interval(p):'Not supplied for this view'],['Pressure / normal legal balls',`${p.pressureBalls} / ${p.normalBalls}`]
  ]:[['Pressure RAE100',signed(p.pressure)],['Normal RAE100',signed(p.normal)],['Overall RAE100',signed(p.overall)],['Shrunk uplift (PPF_adj)',signed(p.uplift)],['90% uplift interval',interval(p)],['Pressure / normal legal balls',`${p.pressureBalls} / ${p.normalBalls}`],['Sample-qualified',p.sampleQualified?'Yes':'No'],['Source active eligibility',p.eligible?'Yes':'No'],['Analysis top 10',p.top10?'Yes':'No']];
- return `<article class="compare-card"><p class="eyebrow">PLAYER ${i?'B':'A'}</p><h3>${esc(p.name)}</h3><p class="team">${esc(p.team)} · ${esc(p.role)} · recorded data</p><div class="compare-score"><span>${esc(views[metric()].label)}</span><strong class="${signClass(value(p))}">${signed(value(p))}</strong><small>${isBowling()?'runs saved /100 legal balls':'runs above expectation /100 legal balls'}</small></div><div class="compare-divider" aria-hidden="true"></div><dl>${metrics.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join('')}</dl><p class="caption">${isBowling()?'The interval describes the runs component under a fixed-pressure sensitivity check.':'Uplift is shrunk; it need not equal the displayed unshrunk pressure-minus-normal difference.'}</p></article>`;
+ return `<article class="compare-card"><p class="eyebrow">PLAYER ${i?'B':'A'}</p><h3>${esc(p.name)}</h3><p class="team">${esc(p.team)} · ${esc(p.role)} · recorded data</p><div class="compare-score"><span>${esc(views[metric()].label)}</span><strong class="${signClass(value(p))}">${signed(value(p))}</strong><small>${isBowling()?'runs saved /100 legal balls':'runs above expectation /100 legal balls'}</small></div><div class="compare-divider" aria-hidden="true"></div><dl>${metrics.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join('')}</dl><p class="caption">${isBowling()?(hasInterval()?'The interval describes shrunk uplift, conditional on the fitted models and cutoffs.':'No interval is supplied for this view.'):'Uplift is shrunk; it need not equal the displayed unshrunk pressure-minus-normal difference.'}</p></article>`;
  }).join('');
 }
 for(const b of document.querySelectorAll('[data-discipline]'))b.addEventListener('click',()=>{discipline=b.dataset.discipline;reset();});
@@ -126,16 +125,16 @@ function route(){
  $('analysisHeading').hidden=method;
  $('analysisTitle').textContent=activePage==='bowling'?'The bowling arena.':'The batting arena.';
  $('analysisEyebrow').textContent=activePage==='bowling'?'CONTROL. BREAKTHROUGHS. CONTEXT.':'TIMING. IMPACT. CONTEXT.';
- $('analysisIntro').textContent=activePage==='bowling'?'Explore overall level, phase-matched uplift and the published final-list funnel across the bowling views.':'See how players performed under pressure, how that compares with their normal level, and where they fit in the shortlist.';
+ $('analysisIntro').textContent=activePage==='bowling'?'Explore overall level, pressure-minus-normal uplift and the published final-list funnel across the bowling views.':'See how players performed under pressure, how that compares with their normal level, and where they fit in the shortlist.';
  $('stats').hidden=method;document.querySelector('.subtabs').hidden=method;if(!method)setView('rankings');else{document.querySelector('.board').hidden=true;document.querySelector('.compare-section').hidden=true;}document.querySelector('.method-section').hidden=!method;
  if(method){renderMethod();}
- else if(false){$('methodology').innerHTML=Object.entries(data.disciplines).map(([key,d])=>`<div class="method-group"><h3>${key==='batting'?'Batting':'Bowling'}</h3><p class="method-scope">${esc(d.seasons)} · ${esc(d.source)}</p>${d.method.map(([title,text])=>`<details><summary>${esc(title)}</summary><p>${esc(text)}</p></details>`).join('')}<details><summary>Interpretation and validation</summary><p>${esc(d.caveat)}</p></details></div>`).join('');}
+ else if(false){$('methodology').innerHTML=Object.entries(data.disciplines).map(([key,d])=>`<div class="method-group"><h3>${key==='batting'?'Batting':'Bowling'}</h3><p class="method-scope">${esc(d.seasons)} · ${esc(d.source)}</p>${d.method.map(([title,text])=>`<details><summary>${esc(title)}</summary><p>${esc(text.replaceAll('per-match BPI','delivery BPI'))}</p></details>`).join('')}<details><summary>Interpretation and validation</summary><p>${esc(d.caveat)}</p></details></div>`).join('');}
  else if(activePage==='batting'||activePage==='bowling'){discipline=activePage;reset();}
 }
 function renderMethod(){if(!data.disciplines[mdisc])mdisc=Object.keys(data.disciplines)[0];
  document.querySelectorAll('[data-mdisc]').forEach(b=>{b.disabled=!data.disciplines[b.dataset.mdisc];const on=b.dataset.mdisc===mdisc;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
  const d=data.disciplines[mdisc];
- $('methodology').innerHTML=`<div class="method-group"><h3>${mdisc==='batting'?'Batting':'Bowling'}</h3><p class="method-scope">${esc(d.seasons)} · ${esc(d.source)}</p>${d.method.map(([title,text])=>`<details><summary>${esc(title)}</summary><p>${esc(text)}</p></details>`).join('')}<details><summary>Interpretation and validation</summary><p>${esc(d.caveat)}</p></details></div>`;}
+ $('methodology').innerHTML=`<div class="method-group"><h3>${mdisc==='batting'?'Batting':'Bowling'}</h3><p class="method-scope">${esc(d.seasons)} · ${esc(d.source)}</p>${d.method.map(([title,text])=>`<details><summary>${esc(title)}</summary><p>${esc(text.replaceAll('per-match BPI','delivery BPI'))}</p></details>`).join('')}<details><summary>Interpretation and validation</summary><p>${esc(d.caveat)}</p></details><details><summary>How the final 10 are selected</summary><p>At least 60 pressure and 200 normal legal balls, active in 2025 or 2026, then a 35-player shortlist on average ranks of normal and overall performance. Players must have non-negative pressure performance. The final order is shrunk pressure-minus-normal uplift. This skill gate keeps the list from rewarding a very weak normal baseline alone. These are analysis choices, not auction-availability rules. The batting role-balanced list is a separate 3/4/3 variant, not the default final list.</p></details><details><summary>Reproducibility and this release</summary><p>The published lists are preserved. This code-only correction did not rerun models or verify the underlying match data. Exact replay is limited by the unavailable private normalized input and preparation path. The corrected loaders require explicit revised-target context rather than guessing it.</p></details></div>`;}
 for(const b of document.querySelectorAll('[data-mdisc]'))b.addEventListener('click',()=>{mdisc=b.dataset.mdisc;renderMethod();});
 function setView(v){view=v;document.querySelector('.board').hidden=v!=='rankings';document.querySelector('.compare-section').hidden=v!=='compare';document.querySelectorAll('[data-view]').forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});}
 for(const b of document.querySelectorAll('[data-view]'))b.addEventListener('click',()=>setView(b.dataset.view));

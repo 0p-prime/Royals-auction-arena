@@ -23,3 +23,14 @@ export function sourcePlayers(dataset,discipline,metric,innings='chase'){
 export function sortedPlayers(players,metric,discipline,order='published'){
  return discipline==='bowling'&&order==='published'?[...players].sort((a,b)=>a.order-b.order):rankPlayers(players,metric);
 }
+
+// View transitions and uncertainty are presentation rules, not ranking changes.
+export function bowlingSelection(metric, innings, changed='metric') {
+ if (changed === 'innings' && innings === 'pooled') return {metric:'uplift', innings};
+ if (metric !== 'uplift' && metric !== 'overall' && innings === 'pooled') innings='chase';
+ return {metric, innings};
+}
+export function intervalFor(discipline, metric, innings) {
+ if (metric !== 'uplift') return null;
+ return discipline === 'batting' ? '90%' : innings === 'pooled' ? '95%' : null;
+}
