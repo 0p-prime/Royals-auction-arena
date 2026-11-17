@@ -7,7 +7,7 @@
     "method": [
       [
         "Final pressure-performance list",
-        "New offline performance calculation, 17 November 2026, from the saved reconstructed pressure checkpoint. Both innings pooled; at least 60 pressure legal balls; no recent-activity filter, normal-ball floor or old skill shortlist. Rank by pressure RAE100, then pressure exposure and name."
+        "New offline performance calculation, 17 November 2026, from the saved reconstructed pressure checkpoint. Both innings pooled. For consistency in selection, players are assessed over a substantial sample of pressure situations and ranked by performance within that sample. No recent-activity filter, normal-ball floor or old skill shortlist."
       ],
       [
         "Earlier comparison export: Pressure and performance",
@@ -39,7 +39,7 @@
     "method": [
       [
         "Final pressure-performance list",
-        "New offline performance calculation, 17 November 2026, from the saved reconstructed pressure checkpoint. Both innings pooled; at least 60 pressure legal balls; no recent-activity filter, normal-ball floor or old skill shortlist. Rank by pressure RAE100, then pressure exposure and name."
+        "New offline performance calculation, 17 November 2026, from the saved reconstructed pressure checkpoint. Both innings pooled. For consistency in selection, players are assessed over a substantial sample of pressure situations and ranked by performance within that sample. No recent-activity filter, normal-ball floor or old skill shortlist."
       ],
       [
         "Earlier comparison export: Pressure definitions",
@@ -87,7 +87,7 @@
       "chasePressureUplift": "at least 60 pressure and 120 normal legal balls",
       "firstInningsPressureLevel": "at least 40 pressure legal balls",
       "firstInningsPressureUplift": "at least 40 pressure and 100 normal legal balls",
-      "finalPooledPressure": 60
+      "finalPooledPressure": 100
     },
     "caveat": "Rankings compare how bowlers actually performed on past matches in the supplied data under the model-defined pressure measure. Exact placings depend on the pressure cutoffs, the wicket value of 20 and the selection floors, so treat fine rank differences as approximate. The pooled uplift interval covers sampling noise only.",
     "listSizes": {
