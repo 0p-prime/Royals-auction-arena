@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {bowlingSelection,intervalFor} from '../web/core.js';
-test('metric changes escape the pooled uplift view',()=>{
- assert.deepEqual(bowlingSelection('pressure','pooled'),{metric:'pressure',innings:'chase'});
- assert.deepEqual(bowlingSelection('overall','pooled'),{metric:'overall',innings:'pooled'});
- assert.deepEqual(bowlingSelection('pressure','pooled','innings'),{metric:'uplift',innings:'pooled'});
+test('pressure always pools both bowling innings',()=>{
+ assert.deepEqual(bowlingSelection('pressure','pooled'),{metric:'pressure',innings:'pooled'});
+ assert.deepEqual(bowlingSelection('pressure','chase'),{metric:'pressure',innings:'pooled'});
+ assert.deepEqual(bowlingSelection('uplift','first'),{metric:'uplift',innings:'first'});
 });
 test('uncertainty is attached to the measure, not the discipline',()=>{
  assert.equal(intervalFor('bowling','uplift','pooled'),'95%');

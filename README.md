@@ -1,5 +1,19 @@
 # Royals Auction Arena
 
+## Current final lists: pressure performance, 17 November 2026
+
+The final report now ranks pressure performance itself, not improvement over normal. Both innings are pooled. Every selected batter and bowler has at least 60 pressure legal balls. There is no recent-activity filter, normal-ball minimum or old normal/overall skill shortlist.
+
+- [11-page report](reports/pressure-20261117/Royals_Auction_Arena_Pressure_Report.pdf)
+- [Batting top 10](reports/pressure-20261117/batting_top10_pressure.csv)
+- [Bowling top 10](reports/pressure-20261117/bowling_top10_pressure.csv)
+- [Run configuration and provenance](reports/pressure-20261117/run_summary.json)
+
+These results are a new offline expectation-model calculation on the saved reconstructed pressure checkpoint, authorized on 17 November. They do not claim numerical reproduction of the previous published run. The dashboard opens on this new pooled pressure list. Earlier overall and shrunk-uplift comparison exports remain available and are labeled separately; their intervals are not intervals for the new pressure scores.
+
+The remaining sections below document the earlier uplift analysis and its preserved comparison outputs. Their older final-list terminology is historical; the pressure report linked above is the current final selection.
+
+
 A pressure-aware player analysis platform for historical T20 batting and bowling performance. Royals Auction Arena measures every batter and bowler against what a model expects from the match situation, then shows who delivers above that level overall, in high-pressure moments, and when the stakes rise. It covers 867 ball-by-ball fixtures from the supplied CSV data (IPL, T20I and Asia Cup tournaments, 2022-26) and ships as three connected parts: a bowling pipeline, a batting pipeline and an interactive analysis website.
 
 **Live site:** https://royals-auction-arena.vercel.app/

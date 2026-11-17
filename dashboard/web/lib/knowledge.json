@@ -1,98 +1,108 @@
 {
- "site": "Royals Auction Arena - Pressure Lab (historical performance under pressure; not a retention or auction-buy recommendation)",
- "batting": {
-  "seasons": "IPL + T20I + Asia Cups 2022-2026",
-  "interval": "90%",
-  "source": "Verified batting aggregate outputs from the supplied CSV match data (867 playable fixtures: IPL, T20I and Asia Cup tournaments, 2022-2026).",
-  "method": [
-   [
-    "Pressure and performance",
-    "BPI = 100 x probability of a dot or striker dismissal on the current legal ball. Pre-ball MPI/LPI features use nested match-grouped out-of-fold models. RAE is batter runs minus expected runs, minus a state-specific wicket penalty times the centered dismissal residual. Pressure = top 30% of delivery BPI (70th percentile); normal = bottom 55% (55th percentile); the middle 15% is left out. Cutoffs are quantiles over all supplied 2022-26 matches."
-   ],
-   [
-    "Uplift and uncertainty",
-    "PPF is recency-weighted pressure RAE100 minus normal RAE100. PPF_adj applies empirical-Bayes shrinkage. The displayed 90% uplift intervals are lambda-scaled match-bootstrap intervals, conditional on the fitted estimator, not posterior intervals. Pressure and overall levels have no intervals supplied in this export."
-   ],
-   [
-    "Selection and quotas",
-    "Sample-qualified requires at least 60 pressure and 200 normal balls. The analysis top 10 additionally uses an active-player/shortlist/performance funnel. The 3 opener / 4 middle / 3 finisher quota list fills role slots from the same funnel order. Team labels are the latest observed team in the data (club or country), not current retention or auction status."
-   ],
-   [
-    "Scope and checks",
-    "This is a data-analysis project: rankings describe observed performance on the supplied matches under the defined pressure measure. Internal consistency check: split-half correlation across match samples is -0.00 for all batsmen and -0.02 for eligible batsmen, so fine rank differences are approximate. Baseline comparisons are in-sample. Sparse wicket-penalty cells add unquantified uncertainty."
-   ],
-   [
-    "Data exclusions",
-    "200,964 delivery rows in scope, 192,415 legal. No-ball batter runs and non-legal-ball dismissals are excluded. Retired hurt/out does not count as striker dismissal. Rain-affected chases are included and scored against the revised target and the balls allotted at each delivery. Super overs are not part of the analysis."
-   ]
-  ],
-  "caveat": "Rankings compare how players actually performed on past matches in the supplied data under the model-defined pressure measure. Exact placings depend on the method's pressure cutoffs, sample floors and selection rules, so treat fine rank differences as approximate. The displayed 90% intervals describe the shrunk uplift estimate, not overall uncertainty."
- },
- "bowling": {
-  "seasons": "IPL + T20I + Asia Cups; 2023-26 scored, 2022 season training-only",
-  "interval": null,
-  "source": "Verified bowling aggregate outputs from the supplied CSV match data (867 playable fixtures: IPL, T20I and Asia Cup tournaments, 2022-2026).",
-  "method": [
-   [
-    "Pressure definitions",
-    "BoPI = 100 x predicted chance the ball goes for a genuine boundary, from facts known before the ball. Pressure = top 30% BoPI (70th percentile); normal = bottom 55% (55th percentile). Cutoffs are quantiles of training-season deliveries."
-   ],
-   [
-    "Performance and ordering",
-    "RAE = expected charged runs - actual charged runs + 20 per credited wicket. Lists show runs saved vs expectation per 100 legal balls."
-   ],
-   [
-    "Uplift and intervals",
-    "BPF = pressure RAE100 - normal RAE100; BPF_adj = BPF x pressure_balls / (pressure_balls + 60). The final pooled ranking orders by BPF_adj."
-   ],
-   [
-    "Expectation model",
-    "Season-ordered out-of-sample scoring: 2022 matches train the expectations only and carry no scores; 2023-26 matches are scored."
-   ],
-   [
-    "Consistency and limits",
-    "This is a data-analysis project: lists describe observed performance on the supplied matches. Internal consistency check: alternate-match BPF rank correlation 0.05, so fine placings are approximate. Boundary risk is a proxy for pressure."
-   ],
-   [
-    "Team and sample scope",
-    "Rates are per 100 legal balls; wides and no-balls add to the cost but not the ball count. 158,496 scored delivery attempts across 687 fixtures (2023-26)."
-   ]
-  ],
-  "definitions": {
-   "pressureChase": "Pressure balls are the highest-BoPI (boundary-risk) 30% of deliveries; normal balls are the lowest 55%.",
-   "pressureFirstInnings": "The same BoPI buckets apply in both innings; first-innings lists use first-innings deliveries only.",
-   "team": "Team is the latest observed team in the data (club or country), not current auction availability.",
-   "expectation": "BoPI = 100 x predicted boundary chance from a model trained on earlier in-sample seasons only."
+  "site": "Royals Auction Arena - Pressure Lab (historical performance under pressure; not a retention or auction-buy recommendation)",
+  "batting": {
+    "seasons": "IPL + T20I + Asia Cups 2022-2026",
+    "interval": "90%",
+    "source": "Verified batting aggregate outputs from the supplied CSV match data (867 playable fixtures: IPL, T20I and Asia Cup tournaments, 2022-2026).",
+    "method": [
+      [
+        "Final pressure-performance list",
+        "New offline performance calculation, 17 November 2026, from the saved reconstructed pressure checkpoint. Both innings pooled; at least 60 pressure legal balls; no recent-activity filter, normal-ball floor or old skill shortlist. Rank by pressure RAE100, then pressure exposure and name."
+      ],
+      [
+        "Earlier comparison export: Pressure and performance",
+        "BPI = 100 x probability of a dot or striker dismissal on the current legal ball. Pre-ball MPI/LPI features use nested match-grouped out-of-fold models. RAE is batter runs minus expected runs, minus a state-specific wicket penalty times the centered dismissal residual. Pressure = top 30% of delivery BPI (70th percentile); normal = bottom 55% (55th percentile); the middle 15% is left out. Cutoffs are quantiles over all supplied 2022-26 matches."
+      ],
+      [
+        "Earlier comparison export: Uplift and uncertainty",
+        "PPF is recency-weighted pressure RAE100 minus normal RAE100. PPF_adj applies empirical-Bayes shrinkage. The displayed 90% uplift intervals are lambda-scaled match-bootstrap intervals, conditional on the fitted estimator, not posterior intervals. Pressure and overall levels have no intervals supplied in this export."
+      ],
+      [
+        "Earlier comparison export: Selection and quotas",
+        "Sample-qualified requires at least 60 pressure and 200 normal balls. The analysis top 10 additionally uses an active-player/shortlist/performance funnel. The 3 opener / 4 middle / 3 finisher quota list fills role slots from the same funnel order. Team labels are the latest observed team in the data (club or country), not current retention or auction status."
+      ],
+      [
+        "Earlier comparison export: Scope and checks",
+        "This is a data-analysis project: rankings describe observed performance on the supplied matches under the defined pressure measure. Internal consistency check: split-half correlation across match samples is -0.00 for all batsmen and -0.02 for eligible batsmen, so fine rank differences are approximate. Baseline comparisons are in-sample. Sparse wicket-penalty cells add unquantified uncertainty."
+      ],
+      [
+        "Earlier comparison export: Data exclusions",
+        "200,964 delivery rows in scope, 192,415 legal. No-ball batter runs and non-legal-ball dismissals are excluded. Retired hurt/out does not count as striker dismissal. Rain-affected chases are included and scored against the revised target and the balls allotted at each delivery. Super overs are not part of the analysis."
+      ]
+    ],
+    "caveat": "Rankings compare how players actually performed on past matches in the supplied data under the model-defined pressure measure. Exact placings depend on the method's pressure cutoffs, sample floors and selection rules, so treat fine rank differences as approximate. The displayed 90% intervals describe the shrunk uplift estimate, not overall uncertainty."
   },
-  "units": {
-   "order": "Order follows the displayed metric value, then name.",
-   "runsSavedPer100": "Runs saved vs model expectation per 100 legal balls (wides and no-balls add to the cost but not the ball count). Positive = saved runs.",
-   "runsSavedCi": "The 95% interval on the pooled uplift (BPF_adj) comes from match-cluster bootstrap resampling; per-innings views have no interval supplied.",
-   "uplift": "Uplift = pressure runs saved per 100 legal balls minus the bowler's own normal-balls rate. The pooled headline ranking uses BPF_adj, which shrinks uplift toward zero for small pressure samples.",
-   "wicketsAboveExpectedPer100": "Credited wickets (bowled, caught, caught & bowled, lbw, stumped, hit wicket) count 20 runs each in RAE; no run-outs.",
-   "rankRange": "Not used in this version: a single wicket value of 20 is fixed."
+  "bowling": {
+    "seasons": "IPL + T20I + Asia Cups; 2023-26 scored, 2022 season training-only",
+    "interval": null,
+    "source": "Verified bowling aggregate outputs from the supplied CSV match data (867 playable fixtures: IPL, T20I and Asia Cup tournaments, 2022-2026).",
+    "method": [
+      [
+        "Final pressure-performance list",
+        "New offline performance calculation, 17 November 2026, from the saved reconstructed pressure checkpoint. Both innings pooled; at least 60 pressure legal balls; no recent-activity filter, normal-ball floor or old skill shortlist. Rank by pressure RAE100, then pressure exposure and name."
+      ],
+      [
+        "Earlier comparison export: Pressure definitions",
+        "BoPI = 100 x predicted chance the ball goes for a genuine boundary, from facts known before the ball. Pressure = top 30% BoPI (70th percentile); normal = bottom 55% (55th percentile). Cutoffs are quantiles of training-season deliveries."
+      ],
+      [
+        "Earlier comparison export: Performance and ordering",
+        "RAE = expected charged runs - actual charged runs + 20 per credited wicket. Lists show runs saved vs expectation per 100 legal balls."
+      ],
+      [
+        "Earlier comparison export: Uplift and intervals",
+        "BPF = pressure RAE100 - normal RAE100; BPF_adj = BPF x pressure_balls / (pressure_balls + 60). The final pooled ranking orders by BPF_adj."
+      ],
+      [
+        "Earlier comparison export: Expectation model",
+        "Season-ordered out-of-sample scoring: 2022 matches train the expectations only and carry no scores; 2023-26 matches are scored."
+      ],
+      [
+        "Earlier comparison export: Consistency and limits",
+        "This is a data-analysis project: lists describe observed performance on the supplied matches. Internal consistency check: alternate-match BPF rank correlation 0.05, so fine placings are approximate. Boundary risk is a proxy for pressure."
+      ],
+      [
+        "Earlier comparison export: Team and sample scope",
+        "Rates are per 100 legal balls; wides and no-balls add to the cost but not the ball count. 158,496 scored delivery attempts across 687 fixtures (2023-26)."
+      ]
+    ],
+    "definitions": {
+      "pressureChase": "Pressure balls are the highest-BoPI (boundary-risk) 30% of deliveries; normal balls are the lowest 55%.",
+      "pressureFirstInnings": "The same BoPI buckets apply in both innings; first-innings lists use first-innings deliveries only.",
+      "team": "Team is the latest observed team in the data (club or country), not current auction availability.",
+      "expectation": "BoPI = 100 x predicted boundary chance from a model trained on earlier in-sample seasons only."
+    },
+    "units": {
+      "order": "Order follows the displayed metric value, then name.",
+      "runsSavedPer100": "Runs saved vs model expectation per 100 legal balls (wides and no-balls add to the cost but not the ball count). Positive = saved runs.",
+      "runsSavedCi": "The 95% interval on the pooled uplift (BPF_adj) comes from match-cluster bootstrap resampling; per-innings views have no interval supplied.",
+      "uplift": "Uplift = pressure runs saved per 100 legal balls minus the bowler's own normal-balls rate. The pooled headline ranking uses BPF_adj, which shrinks uplift toward zero for small pressure samples.",
+      "wicketsAboveExpectedPer100": "Credited wickets (bowled, caught, caught & bowled, lbw, stumped, hit wicket) count 20 runs each in RAE; no run-outs.",
+      "rankRange": "Not used in this version: a single wicket value of 20 is fixed."
+    },
+    "minimumBalls": {
+      "overall": "at least 200 legal balls",
+      "pooledUplift": "at least 60 pressure and 200 normal legal balls",
+      "chasePressureLevel": "at least 60 pressure legal balls",
+      "chasePressureUplift": "at least 60 pressure and 120 normal legal balls",
+      "firstInningsPressureLevel": "at least 40 pressure legal balls",
+      "firstInningsPressureUplift": "at least 40 pressure and 100 normal legal balls",
+      "finalPooledPressure": 60
+    },
+    "caveat": "Rankings compare how bowlers actually performed on past matches in the supplied data under the model-defined pressure measure. Exact placings depend on the pressure cutoffs, the wicket value of 20 and the selection floors, so treat fine rank differences as approximate. The pooled uplift interval covers sampling noise only.",
+    "listSizes": {
+      "finalPooledPressure": 580,
+      "earlier_pooledUplift": 10,
+      "earlier_overall": 10,
+      "earlier_chasePressureLevel": 10,
+      "earlier_chasePressureUplift": 10,
+      "earlier_firstInningsPressureLevel": 10,
+      "earlier_firstInningsPressureUplift": 10
+    }
   },
-  "minimumBalls": {
-   "overall": "at least 200 legal balls",
-   "pooledUplift": "at least 60 pressure and 200 normal legal balls",
-   "chasePressureLevel": "at least 60 pressure legal balls",
-   "chasePressureUplift": "at least 60 pressure and 120 normal legal balls",
-   "firstInningsPressureLevel": "at least 40 pressure legal balls",
-   "firstInningsPressureUplift": "at least 40 pressure and 100 normal legal balls"
-  },
-  "caveat": "Rankings compare how bowlers actually performed on past matches in the supplied data under the model-defined pressure measure. Exact placings depend on the pressure cutoffs, the wicket value of 20 and the selection floors, so treat fine rank differences as approximate. The pooled uplift interval covers sampling noise only.",
-  "listSizes": {
-   "overall": 123,
-   "pooledUplift": 35,
-   "chasePressureLevel": 123,
-   "firstInningsPressureLevel": 176,
-   "chasePressureUplift": 73,
-   "firstInningsPressureUplift": 108
+  "selection": {
+    "final": "Sample floors (60 pressure, 200 normal legal balls), active in 2025/26, 35-player skill shortlist on normal and overall ranks, non-negative pressure performance, then shrunk uplift.",
+    "roleVariant": "The batting 3/4/3 role-balanced list is supplementary and can differ from the default analysis top 10.",
+    "scope": "Historical analysis, no auction-availability restriction is imposed by the Round 1 clarification."
   }
- },
- "selection": {
-  "final": "Sample floors (60 pressure, 200 normal legal balls), active in 2025/26, 35-player skill shortlist on normal and overall ranks, non-negative pressure performance, then shrunk uplift.",
-  "roleVariant": "The batting 3/4/3 role-balanced list is supplementary and can differ from the default analysis top 10.",
-  "scope": "Historical analysis, no auction-availability restriction is imposed by the Round 1 clarification."
- }
 }
