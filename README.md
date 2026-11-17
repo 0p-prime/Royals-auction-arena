@@ -4,7 +4,7 @@
 
 The final report now ranks pressure performance itself, not improvement over normal. Both innings are pooled. For consistency in selection, players are assessed over a substantial sample of pressure situations and ranked by their performance within that sample. There is no recent-activity filter, normal-ball minimum or old normal/overall skill shortlist.
 
-- [11-page report](reports/pressure-20261117/Royals_Auction_Arena_Pressure_Report.pdf)
+- [13-page report](reports/pressure-20261117/Royals_Auction_Arena_Pressure_Report.pdf)
 - [Batting top 10](reports/pressure-20261117/batting_top10_pressure.csv)
 - [Bowling top 10](reports/pressure-20261117/bowling_top10_pressure.csv)
 - [Run configuration and provenance](reports/pressure-20261117/run_summary.json)
