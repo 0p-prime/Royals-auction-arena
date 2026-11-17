@@ -2,7 +2,7 @@
 import json, zipfile, pathlib, hashlib
 import pandas as pd
 CREDIT = {'bowled','caught','caught and bowled','lbw','stumped','hit wicket'}
-ALIASES = {'match_id':['match_id','id'], 'date':['date','start_date'], 'season':['season','year'], 'innings':['innings','inning'], 'over':['over','overs'], 'batter':['batter','striker'], 'bowler':['bowler'], 'bat_runs':['bat_runs','runs_off_bat','batsman_runs'], 'total':['total','total_runs'], 'wides':['wides','wide_runs'], 'noballs':['noballs','noball_runs'], 'byes':['byes','bye_runs'], 'legbyes':['legbyes','legbye_runs'], 'wicket':['wicket','bowler_wicket'], 'dismissals':['dismissals','wickets_lost'], 'venue':['venue'], 'team':['team','bowling_team'], 'batting_team':['batting_team'], 'target':['target'], 'sequence':['sequence','delivery_sequence']}
+ALIASES = {'match_id':['match_id','id'], 'date':['date','start_date'], 'season':['season','year'], 'innings':['innings','inning'], 'over':['over','overs'], 'batter':['batter','striker'], 'bowler':['bowler'], 'bat_runs':['bat_runs','runs_off_bat','batsman_runs'], 'total':['total','total_runs'], 'wides':['wides','wide_runs'], 'noballs':['noballs','noball_runs'], 'byes':['byes','bye_runs'], 'legbyes':['legbyes','legbye_runs'], 'wicket':['wicket','bowler_wicket'], 'dismissals':['dismissals','wickets_lost'], 'venue':['venue'], 'team':['team','bowling_team'], 'batting_team':['batting_team'], 'target':['target_in_force','target'], 'sequence':['sequence','delivery_sequence']}
 def load(path, cfg):
     p=pathlib.Path(path); excluded=[]; rows=[]; coverage=[]
     if p.suffix.lower()=='.csv':
@@ -15,21 +15,22 @@ def load(path, cfg):
         if df.duplicated(['match_id','innings','sequence']).any():raise ValueError('Duplicate CSV delivery keys.')
         if df[list(ALIASES)].isna().any().any():raise ValueError('Missing values in critical canonical CSV fields.')
         df['date']=pd.to_datetime(df.date).dt.strftime('%Y-%m-%d');df['season']=df.season.astype(str).str[:4].astype(int)
-        df=df[(df.season>=cfg['warmup_year'])&(df.season<=max(cfg['years']))].sort_values(['date','match_id','innings','sequence'])
+        df=df[(df.season>=min(cfg['years']))&(df.season<=max(cfg['years']))].sort_values(['date','match_id','innings','sequence'])
         df['legal']=(df.wides.eq(0)&df.noballs.eq(0)).astype(int);df['boundary']=df.bat_runs.isin([4,6]).astype(int);df['importance']=df['importance'] if 'importance' in df else .5
         df['charged']=df.bat_runs+df.wides+df.noballs
-        return df,{'format':'CSV','mapping':mapping,'warnings':['CSV must represent prevalidated standard 20-over innings; use JSON for automatic match-condition checks.']}
+        return df,{'format':'CSV','mapping':mapping,'warnings':['CSV must be prevalidated against the supplied fixtures; revised chases require target_in_force and innings_balls on every affected delivery.']}
     if p.is_dir(): files=[(str(f),f.read_bytes()) for f in p.glob('*.json')]
     else:
         z=zipfile.ZipFile(p);files=[(n,z.read(n)) for n in z.namelist() if n.endswith('.json')]
     for name,raw in files:
         x=json.loads(raw);i=x['info']; year=int(str(i['season'])[:4]);date=str(i['dates'][0]);mid=pathlib.Path(name).stem
-        if not cfg['warmup_year']<=year<=max(cfg['years']):continue
+        if not min(cfg['years'])<=year<=max(cfg['years']):continue
         coverage.append({'match_id':mid,'season':year,'date':date,'venue':i['venue']})
         reason=None
         if i.get('gender')!='male' or i.get('match_type')!='T20':reason='not male T20'
+        elif i.get('outcome',{}).get('method'):
+            raise ValueError(f'{mid}: revised chase requires canonical per-delivery target_in_force and innings_balls; use prepared CSV input')
         elif i.get('overs',20)!=20 or i.get('balls_per_over',6)!=6:reason='reduced/nonstandard innings'
-        elif i.get('outcome',{}).get('method'):reason='revised target/method'
         elif len(x['innings'])<2:reason='missing innings'
         elif i.get('outcome',{}).get('result') in ['no result','abandoned']:reason='no result'
         elif any(a.get('target',{}).get('overs',20)!=20 for a in x['innings'][:2]):reason='reduced target overs'

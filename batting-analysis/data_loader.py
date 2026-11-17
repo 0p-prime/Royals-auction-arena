@@ -22,6 +22,7 @@ def build_deliveries(raw_dir, seasons):
         scheduled_overs = info.get("overs", 20)
         dls = info.get("outcome", {}).get("method") == "D/L"
         reduced = scheduled_overs < 20 or dls
+        revised = bool(info.get("outcome", {}).get("method"))
         for inn_idx, inn in enumerate(d["innings"], start=1):
             if inn.get("super_over"):
                 continue
@@ -30,6 +31,10 @@ def build_deliveries(raw_dir, seasons):
             for ov in inn["overs"]:
                 for ball_seq, dl in enumerate(ov["deliveries"], start=1):
                     extras = dl.get("extras", {})
+                    target = dl.get("target_in_force", inn.get("target", {}).get("runs"))
+                    allotted = dl.get("innings_balls", inn.get("target", {}).get("overs", scheduled_overs) * 6)
+                    if inn_idx == 2 and revised and (dl.get("target_in_force") is None or dl.get("innings_balls") is None):
+                        raise ValueError(f"{match_id}: revised chase needs explicit per-delivery target_in_force and innings_balls; no final-target inference")
                     etype = "+".join(sorted(extras.keys())) if extras else ""
                     is_legal = not ("wides" in extras or "noballs" in extras)
                     wkts = dl.get("wickets", [])
@@ -56,6 +61,8 @@ def build_deliveries(raw_dir, seasons):
                         "batting_team": batting,
                         "bowling_team": bowling,
                         "scheduled_overs": scheduled_overs,
+                        "target_in_force": target,
+                        "innings_balls": allotted,
                         "dls_match": dls,
                         "reduced_dls": reduced,
                     })

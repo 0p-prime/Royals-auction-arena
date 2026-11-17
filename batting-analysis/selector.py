@@ -48,6 +48,7 @@ if __name__ == "__main__":
     print("\n=== TOP 10 (role quota 3/4/3) ===")
     print(top10_q[cols].round(2).to_string())
     top10.to_csv("outputs/top10_batsmen.csv")
+    top10_q.to_csv("outputs/top10_role_quota.csv")
     short.to_csv("outputs/shortlist_35.csv")
     bt.sort_values("PPF_adj", ascending=False).to_csv("outputs/full_ranking.csv")
     ctx = context_2x2(m, short.index)

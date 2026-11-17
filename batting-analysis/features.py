@@ -19,11 +19,11 @@ def phase_of(over, scheduled_overs):
 
 def build_features(df, cfg):
     df["dls_chase"] = (df["dls_match"]) & (df["innings"] == 2)
-    # DLS chase innings have no revised target in Cricsheet -> rrr would be false;
-    # excluded from the modeling frame (count disclosed in logs)
+    # Revised chases require explicit target/allotted-ball values at input.
+    # They remain in the modeling frame once that context is supplied.
     df = df.sort_values(["date", "match_id", "innings", "over", "ball_seq"]).reset_index(drop=True)
     df["row_id"] = np.arange(len(df))
-    total_balls = df["scheduled_overs"] * 6
+    total_balls = df["innings_balls"] if "innings_balls" in df else df["scheduled_overs"] * 6
 
     g = df.groupby(["match_id", "innings"], sort=False)
     df["runs_before"] = g["runs_batter"].transform(lambda s: (s + df.loc[s.index, "runs_extras"]).cumsum().shift(fill_value=0)).astype(int)
@@ -35,7 +35,7 @@ def build_features(df, cfg):
         lambda x: (x["runs_batter"] + x["runs_extras"]).sum(), include_groups=False).unstack()
     inn_tot.columns = [f"inn{c}_total" for c in inn_tot.columns]
     df = df.merge(inn_tot.reset_index(), on="match_id", how="left")
-    chase_target = df["target_in_force"] if "target_in_force" in df.columns else df["inn1_total"] + 1
+    chase_target = df["target_in_force"].fillna(df["inn1_total"] + 1) if "target_in_force" in df.columns else df["inn1_total"] + 1
     df["target_score"] = np.where(df["innings"] == 2, chase_target, np.nan)
 
     overs_done = df["legal_before"] / 6.0
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     df.to_parquet("data/interim/features.parquet", index=False)
     m = df["is_legal"]
     print("rows:", len(df), "| legal rows:", int(m.sum()),
-          "| DLS chase legal rows excluded from modeling:", int((df["is_legal"] & df["dls_chase"]).sum()))
+          "| DLS chase legal rows retained in modeling:", int((df["is_legal"] & df["dls_chase"]).sum()))
     print("class balance y_dot_or_out: %.4f" % df.loc[m, "y_dot_or_out"].mean())
     print("class balance y_out_6: %.4f" % df.loc[m, "y_out_6"].mean())
     print("par missing (cold-start first date): %d rows" % df["par_missing"].sum())

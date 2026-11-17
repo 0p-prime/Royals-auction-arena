@@ -1,8 +1,11 @@
 """Reproduce audit, temporal predictions, diagnostics, selection and plots."""
 import os
 os.environ.setdefault('OMP_NUM_THREADS','2');os.environ.setdefault('OPENBLAS_NUM_THREADS','2')
-import argparse,json,logging,joblib
+import argparse,json,logging,joblib,sys
 from pathlib import Path
+_ROOT = Path(__file__).resolve().parent
+for _folder in (_ROOT / "core", _ROOT / "models"):
+    sys.path.insert(0, str(_folder))
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -41,8 +44,11 @@ def main():
     # Expanding-year out-of-sample scores for 2022-24. Frozen 2022-24 model for 2025-26.
     scored=[];held={};preds={};fold_audit=[]
     for yr in cfg['years']:
-        tr=d[d.season<yr] if yr==min(cfg['years']) else d[(d.season>=min(cfg['years']))&(d.season<yr)&(d.season<=cfg['train_end'])];te=d[d.season==yr]
+        tr=d[(d.season>=min(cfg['years']))&(d.season<yr)&(d.season<=cfg['train_end'])];te=d[d.season==yr]
         if te.empty:continue
+        if tr.empty:
+            logging.info("Season %s is training-only: no earlier supplied season", yr)
+            continue
         fold_audit.append({'predicted_season':yr,'training_seasons':sorted(tr.season.unique().tolist()),'training_match_ids':sorted(tr.match_id.unique().tolist()),'prediction_match_ids':sorted(te.match_id.unique().tolist())})
         logging.info('Predict season %s, train matches %s, rows %s',yr,tr.match_id.nunique(),len(tr))
         bm=model(cfg,chosen);bm.fit(tr,target(tr));er,ew=fit_expected(tr,cfg);a=te.copy();a['bopi']=100*bm.predict_proba(a)[:,1];a['er']=er.predict(a);a['ew']=ew.predict_proba(a)[:,1];scored.append(a)
