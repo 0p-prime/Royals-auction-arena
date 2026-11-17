@@ -7,9 +7,9 @@
 - Overall level: RAE100 across all modeled legal balls, including intermediate pressure states. It is not an average of the two displayed buckets.
 - Uplift: `PPF_adj`, an empirical-Bayes-shrunk pressure-minus-normal difference. It need not equal the difference of the two unshrunk displayed levels.
 - Interval: the exported lambda-scaled 90% match-bootstrap interval for uplift. Level intervals are not available in this export; none are invented.
-- Sample-qualified: at least 60 pressure and 200 normal balls, regardless of active-season membership (104 players).
+- Sample-qualified: at least 60 pressure and 200 normal balls, regardless of active-season membership. Counts are shown from the current export.
 - Source active eligibility: the same count floors plus the source's active-season flag (122 players).
-- Shortlist/top10/quota: exact membership of the supplied source files. The 3/4/3 quota list fills role slots from the same funnel order; on the current data it matches the analysis top 10.
+- Shortlist/top10/quota: exact membership of the supplied source files. The 3/4/3 quota list fills role slots from the same funnel order; it is a separate selection variant and need not match the default analysis top 10. The current published no-quota list and role-balanced list differ.
 
 The model uses pre-ball features and nested match-grouped out-of-fold pressure scores. Batting BPI predicts a dot or striker dismissal on the current legal ball, not psychological pressure. New/settled players remain combined, with no balls-faced adjustment. Split-half uplift consistency across match samples is weak (-0.00 all batsmen, -0.02 eligible), so fine rank differences are approximate. See the supplied batting methodology for full exclusions, shrinkage and validation details.
 

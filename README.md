@@ -1,6 +1,6 @@
 # Royals Auction Arena
 
-A pressure-aware player analysis platform for IPL auction scouting. Royals Auction Arena measures every batter and bowler against what a model expects from the match situation, then shows who delivers above that level overall, in high-pressure moments, and when the stakes rise. It covers 867 ball-by-ball fixtures from the supplied CSV data (IPL, T20I and Asia Cup tournaments, 2022-26) and ships as three connected parts: a bowling pipeline, a batting pipeline and an interactive analysis website.
+A pressure-aware player analysis platform for historical T20 batting and bowling performance. Royals Auction Arena measures every batter and bowler against what a model expects from the match situation, then shows who delivers above that level overall, in high-pressure moments, and when the stakes rise. It covers 867 ball-by-ball fixtures from the supplied CSV data (IPL, T20I and Asia Cup tournaments, 2022-26) and ships as three connected parts: a bowling pipeline, a batting pipeline and an interactive analysis website.
 
 **Live site:** https://royals-auction-arena.vercel.app/
 
@@ -12,10 +12,10 @@ A pressure-aware player analysis platform for IPL auction scouting. Royals Aucti
 - **Interactive website.** Batting and bowling views, role/style, team and sample filters, side-by-side player comparison, responsive charts with interval labels, and CSV export of the current view.
 - **Pitch assistant.** Ask questions about rankings and the factors behind them in plain language, answered from the site's methodology and player summaries.
 - **Scripted pipelines.** Scripted steps, fixed seeds and configs, frozen trained models for bowling, and test suites for both packages.
-- **Leakage-controlled modelling.** Features use only pre-ball information and strictly earlier dates, and out-of-sample scoring follows season order.
+- **Leakage-controlled modelling.** Features use pre-ball information. Batting uses match-grouped out-of-fold scoring; bowling uses earlier-season scoring. These are different validation designs, not a single chronology claim.
 - **Lightweight deployment.** The site is static HTML, CSS and JavaScript with SVG charts, no database and no npm dependencies.
 
-The analysis is a description of past performance, built to inform scouting and auction discussion.
+The analysis describes past performance under a stated pressure definition. The Round 1 output is two ordered top-10 lists and an explanation of the method, not a retention or auction-buy recommendation. The squad planner is an optional practice tool.
 
 ## Contents
 
@@ -143,12 +143,13 @@ Python 3.10-3.13.
 cd bowling-analysis
 python3 -m venv .venv && source .venv/bin/activate   # Windows: py -m venv .venv
 pip install -r requirements.txt
-python download_data.py      # fetches the public Cricsheet IPL archive
-python run.py                # rebuilds scores, lists, validation outputs, plots
+# Supply a private, prepared canonical CSV restricted to the supplied fixtures.
+# Do not substitute the broad download_data.py archive for this match universe.
+python run.py --data /path/to/prepared_supplied_matches.csv
 python -m pytest tests/ -q
 ```
 
-Some tests read generated outputs, so run the pipeline before the test suite. Exact package versions of the documented run are in `environment.txt`; the archive checksum is in `SOURCES.json`. A fresh download can shift results. `outputs/frozen_models.joblib` is a trusted local artifact; do not load joblib or pickle files from untrusted sources.
+Some tests read generated outputs, so run the pipeline before the test suite. Exact package versions of an earlier run are in `environment.txt`; archive provenance is in `SOURCES.json`. Those records are not a guarantee of exact replay of the published normalized-input run. The first supplied season is training-only; no pre-2022 warm-up matches are used by the corrected entry point. `outputs/frozen_models.joblib` is a trusted local artifact; do not load joblib or pickle files from untrusted sources.
 
 ### Batting analysis
 
@@ -156,7 +157,7 @@ Some tests read generated outputs, so run the pipeline before the test suite. Ex
 cd batting-analysis
 python3 -m pip install -r requirements.txt
 mkdir -p outputs logs
-export IPL_JSON_DIR=/path/to/ipl_json    # or unpack to data/raw/ipl_json
+export IPL_JSON_DIR=/path/to/supplied_fixture_json    # private, exact supplied universe
 python3 data_loader.py && python3 features.py && python3 mpi_lpi_models.py \
   && python3 stacker.py && python3 relation_analysis.py && python3 expected_runs.py \
   && python3 ppf.py && python3 selector.py && python3 validate.py
@@ -222,7 +223,7 @@ Inspect `dataset.json` before deploying: it contains player-level aggregates and
 
 - **Pressure index (BPI).** 100 x P(dot ball or dismissal) from pre-ball features, via nested grouped cross-validation with a stacked estimator. No ball is scored by a model that saw its match.
 - **Expectation.** Situation-only expected runs and dismissal. The wicket penalty is the expected runs the incoming batter adds from that state.
-- **Pressure buckets.** Pressure is the top 30% of per-match BPI (70th percentile) and normal the bottom 55% (55th percentile), computed over all supplied 2022-26 matches; the middle 15% is left out. (The temporal diagnostic below is separate: it restricts fitting to 2022-24 and scores 2025-26 frozen.)
+- **Pressure buckets.** Pressure is the top 30% of delivery BPI (70th percentile) and normal the bottom 55% (55th percentile), computed over all supplied 2022-26 matches; the middle 15% is left out. (The temporal diagnostic below is separate: it restricts fitting to 2022-24 and scores 2025-26 frozen.)
 - **PPF.** Pressure RAE per 100 balls minus normal RAE per 100 balls, with recency weights (1.0 for 2025-26, 0.6 for 2022-24), empirical-Bayes shrinkage, and 1000-resample match-bootstrap 90% intervals.
 - **Selection funnel.** At least 60 pressure balls and 200 normal balls, active in 2025 or 2026, shortlist of 35, analysis top 10, and a role-balanced 3 openers / 4 middle order / 3 finishers variant.
 
@@ -252,7 +253,7 @@ Pressure states come from BoPI quantile cutoffs fitted on the training window: p
 - Consistency across matches, measured. Bowling BPF rank correlation is 0.05 across alternate matches (361 bowlers) and -0.01 early versus late (227). Batting split-half uplift correlation is -0.00 across all batsmen (406) and -0.02 within the eligible cohort (130). These values are weak, so fine rank differences are approximate and exact placings depend on the method's cutoffs, floors and selection rules.
 - Sensitivity: a wicket value of 10 instead of 20 keeps 7 of the 10 bowling names; a value of 30 keeps 9 of 10. Pressure-cutoff choices move individual placings.
 - Match-cluster bootstrap intervals (500 resamples), conditional on the fitted models and cutoffs; they cover sampling noise, not model or cutoff uncertainty.
-- Leakage controls: pre-ball features only, season-ordered out-of-sample scoring, fixed seeds; both pipelines are deterministic.
+- Leakage controls: pre-ball features, match-grouped batting out-of-fold scoring and season-ordered bowling scoring, with fixed seeds. Exact published replay remains limited by the missing normalized input described below.
 - Website: unit tests for selection and ordering, server tests, importer tests, a dataset integrity script and optional Playwright browser checks.
 
 ## Pitch assistant
@@ -280,5 +281,5 @@ Without `players.json` the site is unaffected and Pitch answers methodology ques
 - Ball-by-ball data: supplied CSV export of [Cricsheet](https://cricsheet.org/downloads/) matches (IPL, T20I and Asia Cup tournaments, 2022-26), under the [Open Data Commons Attribution License](https://opendatacommons.org/licenses/by/1-0/) (license copy in `bowling-analysis/data/Cricsheet_LICENSE.txt`). Rankings are based on the matches in the supplied CSV, using the ranking method described above.
 - Bowling pace/spin reporting tags: [aadi-jn/indian-premier-league](https://github.com/aadi-jn/indian-premier-league/blob/main/docs/data_dictionary.md), joined by registry ID and used for reporting views only.
 - Coverage: 867 playable fixtures from 2022-26. Bowling scores 687 fixtures from 2023-26 (158,496 deliveries), with the 180 fixtures of the 2022 season used for training only; the 16 fixtures with no play and all super overs are excluded. Rain-affected chases are included, scored against the revised target and the balls allotted at each delivery.
-- Input preparation: the published lists were scored from a normalised ball-by-ball table. It maps each supplied-CSV fixture to Cricsheet outcomes where available (785 fixtures), takes the remaining 82 from the supplied extras with recorded corrections, and applies a per-match record of revised targets and allotted balls for rain-affected chases. The preparation scripts depend on the organiser files and are not part of this repository. The model code in `batting-analysis/` and `bowling-analysis/` reads per-delivery targets (`target_in_force`) and allotted balls (`innings_balls`) when the input table has them, and keeps rain-affected chases in the models. A replay from a reconstructed copy of that table gives pressure cutoffs close to, but not identical with, the published ones (batting 42.03 vs 42.05, bowling 19.22 vs 19.21), so the published figures are not claimed to be exactly reproducible from this repository.
+- Input preparation: the published lists were scored from a normalised ball-by-ball table. It maps each supplied-CSV fixture to Cricsheet outcomes where available (785 fixtures), takes the remaining 82 from the supplied extras with recorded corrections, and applies a per-match record of revised targets and allotted balls for rain-affected chases. The preparation scripts depend on the organiser files and are not part of this repository. The corrected code accepts explicit target-in-force and allotted-ball context. Revised chases without per-delivery context fail clearly rather than borrowing a final target or silently disappearing. Batting JSON delivery records can carry `target_in_force` and `innings_balls`; bowling canonical CSV can carry the same fields, with `target_in_force` mapped to its target feature. Standard JSON paths are not a substitute for the missing private normalized preparation. These corrections were tested with synthetic fixtures, not by rerunning or checking the published data. A replay from a reconstructed copy of that table gives pressure cutoffs close to, but not identical with, the published ones (batting 42.03 vs 42.05, bowling 19.22 vs 19.21), so the published figures are not claimed to be exactly reproducible from this repository.
 - Raw match data, trained parquet files and generated datasets are not stored in the repository. Team labels are historical records, not current contracts or auction eligibility. See [`dashboard/DATA_ATTRIBUTION.txt`](dashboard/DATA_ATTRIBUTION.txt).

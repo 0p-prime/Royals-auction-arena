@@ -22,3 +22,10 @@ Desktop and phone layouts, forest charts, mobile player cards and comparison car
 ## Scope not verified by this record
 
 Live hosting, public URL availability and account-level deployment settings must be checked after deployment. Auction rules and player availability are outside the website's verified scope. Original pipeline test reports are inherited evidence from the supplied verified artifacts, not new tests executed by this website build.
+
+
+## Code-only correction pass - 17 November 2026
+
+The metric transition from pooled bowling uplift now preserves the user's requested measure, switching to a chase view for pressure levels. Interval labels are view-specific: batting uplift 90%, pooled bowling uplift 95%, and no supplied intervals for the other views. Empty phase fields and claims of phase matching were removed. Pressure-ball cards sum pressure exposure, not pressure plus normal.
+
+Tests use synthetic fixtures only. The published dataset and assistant player summaries are preserved as opaque deployment assets. No match-data audit, model fit, ranking recomputation or competition submission is part of this pass. Aggregate membership/order and historical validation figures are inherited published outputs, not newly verified results.
