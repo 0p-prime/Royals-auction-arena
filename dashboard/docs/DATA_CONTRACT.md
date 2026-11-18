@@ -12,7 +12,7 @@ Player fields:
 | team | Historical recorded team, never current eligibility |
 | role | Batting position group, or bowling pace/spin/unknown reporting label |
 | pressure, normal, overall, uplift | Numeric measure or null; never a placeholder zero |
-| ciLow, ciHigh | Batting uplift interval; bowling selected-list runs-component interval |
+| ciLow, ciHigh | Batting uplift interval; bowling selected-list runs-component interval; final pooled pressure list carries the 80% conditional score interval |
 | pressureBalls, normalBalls | Raw sample counts; bowling overall uses pressureBalls=0 because pressure count is not supplied |
 | sampleQualified | Batting count floors without active-season restriction |
 | eligible | Supplied batting active eligibility; bowling selected-list qualification |

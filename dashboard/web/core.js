@@ -1,4 +1,4 @@
-export const views={uplift:{label:'Improvement over normal',unit:'runs / 100 balls',key:'uplift'},pressure:{label:'Performance under pressure',unit:'runs / 100 balls',key:'pressure'},overall:{label:'Overall performance',unit:'runs / 100 balls',key:'overall'}};
+export const views={uplift:{label:'Improvement over normal',unit:'runs / 100 balls',key:'uplift'},pressure:{label:'Performance under pressure',unit:'score index (50 = role average)',key:'pressure'},overall:{label:'Overall performance',unit:'runs / 100 balls',key:'overall'}};
 export function filterPlayers(players,{role='all',search='',pool='eligible',minBalls=0}={}){
  return players.filter(p=>(role==='all'||p.role===role)&&(pool==='all'||(pool==='sample'?p.sampleQualified:pool==='shortlist'?p.shortlisted:pool==='top10'?p.top10:pool==='quota'?p.quota:p.eligible))&&p.pressureBalls>=Number(minBalls)&&`${p.name} ${p.team||''}`.toLowerCase().includes(search.toLowerCase()));
 }
@@ -31,6 +31,7 @@ export function bowlingSelection(metric, innings, changed='metric') {
  return {metric,innings};
 }
 export function intervalFor(discipline, metric, innings) {
+ if (metric === 'pressure') return '80%';
  if (metric !== 'uplift') return null;
  return discipline === 'batting' ? '90%' : innings === 'pooled' ? '95%' : null;
 }

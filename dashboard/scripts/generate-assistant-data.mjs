@@ -41,16 +41,28 @@ const LEVEL_FIELD = { pooledUplift: 'uplift', overall: 'overall', chasePressureL
 
 const r1 = x => (typeof x === 'number' && Number.isFinite(x)) ? Math.round(x * 10) / 10 : (x ?? null);
 
+const finalRow = r => ({
+  place: r.order ?? null, score: r1(r.pressure), ci80: [r1(r.ciLow), r1(r.ciHigh)],
+  hpBalls: r.pressureBalls, hpMatches: r.hpMatches ?? null, eligible: !!r.eligible, top10: !!r.top10
+});
+
 const players = [];
+const batPressure = new Map((bat.lists?.pooledPressure || []).map(p => [p.id, p]));
 for (const p of bat.players) {
-  players.push({
+  const row = {
     n: p.name, d: 'batting', team: p.team, role: p.role,
     pressure: r1(p.pressure), normal: r1(p.normal), overall: r1(p.overall), uplift: r1(p.uplift),
     ci90: [r1(p.ciLow), r1(p.ciHigh)],
     pressureBalls: p.pressureBalls, normalBalls: p.normalBalls,
     confidence: p.confidence, eligible: p.eligible, sampleQualified: p.sampleQualified,
     shortlisted: p.shortlisted, analysisTop10: p.top10, roleQuota: p.quota
-  });
+  };
+  const fp = batPressure.get(p.id);
+  if (fp) { row.finalPressure = finalRow(fp); batPressure.delete(p.id); }
+  players.push(row);
+}
+for (const fp of batPressure.values()) {
+  players.push({ n: fp.name, d: 'batting', team: fp.team, role: fp.role, finalPressure: finalRow(fp) });
 }
 
 const bowlers = new Map(); // id -> aggregated row, first-appearance order
@@ -70,9 +82,14 @@ for (const listName of LIST_ORDER) {
     };
   }
 }
+for (const r of bowl.lists?.pooledPressure || []) {
+  if (!bowlers.has(r.id)) bowlers.set(r.id, { n: r.name, d: 'bowling', team: r.team, role: r.role, lists: {} });
+  bowlers.get(r.id).lists.finalPressure = finalRow(r);
+}
 players.push(...bowlers.values());
 
 const battingLists = {
+  finalPressureTop10: (bat.lists?.pooledPressure || []).filter(p => p.top10).map(p => p.name),
   analysisTop10: bat.players.filter(p => p.top10).map(p => p.name),
   shortlist35: bat.players.filter(p => p.shortlisted).map(p => p.name),
   roleQuota: bat.players.filter(p => p.quota).map(p => p.name)
@@ -81,6 +98,7 @@ const bowlingLists = {};
 for (const listName of LIST_ORDER) {
   bowlingLists[listName] = (bowl.lists[listName] || []).slice(0, 10).map(r => r.name);
 }
+bowlingLists.pooledPressure = (bowl.lists?.pooledPressure || []).filter(r => r.top10).map(r => r.name);
 
 const out = { players, battingLists, bowlingLists };
 writeFileSync(outPlayers, JSON.stringify(out, null, 2) + '\n');

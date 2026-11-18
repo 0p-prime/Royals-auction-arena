@@ -8,10 +8,10 @@ test('pressure always pools both bowling innings',()=>{
 });
 test('uncertainty is attached to the measure, not the discipline',()=>{
  assert.equal(intervalFor('bowling','uplift','pooled'),'95%');
- for(const metric of ['pressure','overall']) assert.equal(intervalFor('bowling',metric,'pooled'),null);
+ assert.equal(intervalFor('bowling','overall','pooled'),null);
  assert.equal(intervalFor('bowling','uplift','chase'),null);
  assert.equal(intervalFor('batting','uplift','pooled'),'90%');
- assert.equal(intervalFor('batting','pressure','pooled'),null);
+ for(const t of ['batting','bowling']) assert.equal(intervalFor(t,'pressure','pooled'),'80%');
 });
 test('application module parses before deployment', async()=>{
  const {execFileSync}=await import('node:child_process');
