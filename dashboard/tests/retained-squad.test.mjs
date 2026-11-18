@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const root=new URL('../web/',import.meta.url);
+const d=JSON.parse(readFileSync(new URL('retained-squad.json',root)));
+test('official IPL 2027 squad has 17 retained and two traded-in players',()=>{assert.equal(d.players.length,19);assert.equal(new Set(d.players.map(p=>p.name)).size,19);assert.equal(d.players.filter(p=>p.status==='Retained').length,17);assert.deepEqual(d.players.filter(p=>p.status==='Traded in').map(p=>p.name).sort(),['Manimaran Siddharth','Mohammed Shami']);assert.equal(d.asOf,'18 November 2026');});
+test('scores preserve exposure, separate disciplines, and unavailable values',()=>{assert.equal(d.players.filter(p=>p.batting||p.bowling).length,18);for(const p of d.players)for(const disc of ['batting','bowling']){const s=p[disc];if(!s)continue;assert.ok(s.score>=0&&s.score<=100);assert.ok(s.low<=s.score&&s.score<=s.high);assert.ok(s.balls>0);assert.equal(s.shortlist,s.balls>=(disc==='batting'?550:601));assert.equal(s.provisional,s.balls<(disc==='batting'?75:100));}const aman=d.players.find(p=>p.name==='Aman Rao Perala');assert.equal(aman.batting,null);assert.equal(aman.bowling,null);const v=d.players.find(p=>p.name==='Vaibhav Sooryavanshi');assert.equal(v.modelName,'V Suryavanshi');assert.equal(v.batting.score,61.2357640788613);});
+test('planner controls are removed and retained page uses native accessible controls',()=>{const h=readFileSync(new URL('index.html',root),'utf8');assert.ok(!h.includes('id="sqForm"'));assert.ok(h.includes('id="retSearch"'));assert.ok(h.includes('id="retFilters"'));const j=readFileSync(new URL('squad.js',root),'utf8');assert.ok(j.includes('aria-pressed'));assert.ok(j.includes('<details'));});

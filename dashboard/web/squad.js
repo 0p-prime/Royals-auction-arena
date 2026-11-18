@@ -1,85 +1,33 @@
-import {TAGS,MODES,emptyState,addEntry,updateEntry,removeEntry,addAdjustment,removeAdjustment,setPurse,setTarget,setMode,compute,importRetained,exportJSON,exportCSV,restoreJSON,money} from './squad-core.js';
 const $=id=>document.getElementById(id);
-if(!$('squadSection'))throw new Error('squad section missing');
-const KEY='royals-squad-planner-v1';
-let state=load(),history=[],editingId=null,roleHints=new Map(),storageOk=true;
-function load(){try{const raw=localStorage.getItem(KEY);if(raw){const r=restoreJSON(raw);if(r.state)return r.state;}}catch{}return emptyState();}
-function save(){try{localStorage.setItem(KEY,exportJSON(state));storageOk=true;}catch{storageOk=false;}}
-function commit(next){history.push(state);if(history.length>50)history.shift();state=next;save();render();}
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
-// Role tag checkboxes
-const tagBox=$('sqTags');
-for(const t of TAGS){const l=el('label','chip');const i=document.createElement('input');i.type='checkbox';i.value=t.id;i.name='sqTag';l.appendChild(i);l.appendChild(el('span',null,t.label));tagBox.appendChild(l);}
-const checkedTags=()=>[...tagBox.querySelectorAll('input:checked')].map(i=>i.value);
-const setTags=list=>{for(const i of tagBox.querySelectorAll('input'))i.checked=list.includes(i.value);};
-// Names from the dataset for suggestions only. Nationality is never guessed.
-fetch('./dataset.json').then(r=>r.ok?r.json():null).then(d=>{if(!d)return;const names=new Set();
- const bat=d.disciplines&&d.disciplines.batting&&d.disciplines.batting.players||[];for(const p of bat){names.add(p.name);if(p.role==='opener')roleHints.set(p.name,['top']);else if(p.role==='middle')roleHints.set(p.name,['middle']);else if(p.role==='finisher')roleHints.set(p.name,['finisher']);}
- const lists=d.disciplines&&d.disciplines.bowling&&d.disciplines.bowling.lists||{};for(const k of Object.keys(lists))for(const p of lists[k])names.add(p.name);
- const dl=$('sqNames');for(const n of [...names].sort().slice(0,2000)){const o=document.createElement('option');o.value=n;dl.appendChild(o);}}).catch(()=>{});
-$('sqName').addEventListener('input',()=>{const n=$('sqName').value.trim();const h=roleHints.get(n);const hint=$('sqHint');
- if(h&&editingId===null){if(!checkedTags().length)setTags(h);hint.textContent='The dataset lists this batter as '+({top:'an opener (top order)',middle:'a middle-order batter',finisher:'a finisher'}[h[0]])+'. Change the roles if that is not right. Nationality and bowling type are not in the data, so choose them yourself.';}
- else hint.textContent='';});
-function num(v){return v===''?'':v;}
-function render(){
- const c=compute(state);
- for(const r of document.querySelectorAll('input[name="sqMode"]'))r.checked=r.value===state.mode;
- if(document.activeElement!==$('sqStart'))$('sqStart').value=state.purse===null?'':state.purse;
- if(document.activeElement!==$('sqTarget'))$('sqTarget').value=state.target===null?'':state.target;
- $('sqModeNote').textContent=c.countsRetained?'Mode: total budget. Retained prices ARE deducted (once) from the figure below.':'Mode: auction purse after retentions. Retained prices are NOT deducted again.';
- $('sqRemainingLabel').textContent=(c.incomplete?'Remaining purse (at most)':'Remaining purse')+' · '+(c.countsRetained?'budget before retentions':'after retentions');
- $('sqRemaining').textContent=c.remaining===null?'Enter an amount':money(c.remaining);
- $('sqSpent').textContent=money(c.spent);
- $('sqWarn').textContent=c.incomplete?('At most '+money(c.remaining)+' left. '+c.unpriced+(c.unpriced===1?' counted player has':' counted players have')+' no price yet, so the real figure may be lower.'):'';
- const info=[];if(c.retainedCount&&!c.countsRetained)info.push('Retained players: '+c.retainedCount+', listed prices total '+money(c.retainedInfoTotal)+(c.retainedUnpriced?' ('+c.retainedUnpriced+' with unknown price)':'')+'. Information only.');
- if(c.perSlot!==null)info.push((c.incomplete?'At most ':'About ')+money(c.perSlot)+' per remaining slot ('+c.slots+' to reach the target of '+state.target+').');else if(c.slots!==null&&c.slots<=0)info.push('Squad target of '+state.target+' reached.');
- $('sqInfo').textContent=info.join(' ');
- const al=$('sqAdjList');al.textContent='';for(const a of state.adjustments){const li=el('li');li.appendChild(el('span',null,(a.amount>0?'+':'')+a.amount+' cr'+(a.note?' · '+a.note:'')));const b=el('button','link','Remove');b.type='button';b.addEventListener('click',()=>commit(removeAdjustment(state,a.id)));li.appendChild(b);al.appendChild(li);}
- $('sqUndo').disabled=!history.length;
- // counts
- const box=$('sqCounts');box.textContent='';
- const card=(label,value,sub)=>{const d=el('div','count-card');d.appendChild(el('small',null,label));d.appendChild(el('strong',null,String(value)));if(sub)d.appendChild(el('span',null,sub));box.appendChild(d);};
- card('Squad size',c.size,state.target?'target '+state.target:'');card('Indian',c.origin.indian);card('Overseas',c.origin.overseas);card('Nationality not set',c.origin.unknown,c.origin.unknown?'not counted as Indian or overseas':'');
- for(const t of TAGS)card(t.label,c.tags[t.id]);if(c.untagged)card('No role set',c.untagged);
- $('sqSquadCount').textContent=c.size?'('+c.size+')':'';
- // list
- const lists=$('sqLists');lists.textContent='';
- if(!state.entries.length){lists.appendChild(el('p','empty','No players yet. Add one above or import a retained squad.'));}
- for(const g of [['retained','Retained'],['bought','Bought at auction']]){const items=state.entries.filter(e=>e.status===g[0]);if(!items.length)continue;
-  lists.appendChild(el('h3',null,g[1]+' ('+items.length+')'));const ul=el('ul','player-list');
-  for(const e of items){const li=el('li');const main=el('div','p-main');main.appendChild(el('strong',null,e.name));
-   const meta=el('div','p-meta');meta.appendChild(el('span','badge '+(e.origin==='unknown'?'unset':e.origin),e.origin==='indian'?'Indian':e.origin==='overseas'?'Overseas':'Nationality not set'));
-   meta.appendChild(el('span','badge price'+(e.price===null?' unset':''),e.price===null?'Price unknown':money(e.price)+(g[0]==='retained'&&!c.countsRetained?' (info)':'')));
-   for(const t of e.tags)meta.appendChild(el('span','badge role',TAGS.find(x=>x.id===t).label));if(!e.tags.length)meta.appendChild(el('span','badge unset','No role set'));
-   main.appendChild(meta);li.appendChild(main);
-   const act=el('div','p-actions');const ed=el('button','link','Edit');ed.type='button';ed.addEventListener('click',()=>startEdit(e.id));const rm=el('button','link','Remove');rm.type='button';rm.addEventListener('click',()=>{if(editingId===e.id)stopEdit();commit(removeEntry(state,e.id));});act.appendChild(ed);act.appendChild(rm);li.appendChild(act);ul.appendChild(li);}
-  lists.appendChild(ul);}
- $('sqStorageNote').classList.toggle('bad',!storageOk);
- if(!storageOk)$('sqStorageNote').textContent='This browser is blocking saving, so your plan will be lost when you close the page. Download a backup now.';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const roles=['All players','Batters','Wicket-keepers','All-rounders','Bowlers'];
+const roleMap={'Batters':'Batter','Wicket-keepers':'Wicket-keeper','All-rounders':'All-rounder','Bowlers':'Bowler'};
+let roster=[],role='All players';
+const icons={bat:'<g transform="rotate(32 20 20)"><rect x="18" y="2" width="5" height="10" rx="2"/><path d="M15 12h11v19q0 7-5.5 7T15 31Z"/></g>',ball:'<circle cx="21" cy="21" r="15"/><path d="M11 12q9 11 20 18M12 11q11 9 18 20" stroke-dasharray="2 3"/>',keeper:'<path d="M10 33 5 20q-1-5 3-5l5 8V9q0-4 4-2l2 13V6q1-4 4 0l1 14 1-11q2-4 4 0l1 15 3-6q4-2 4 2l-5 13Z"/>',all:'<path d="M12 31 29 6l5 4-17 25Z"/><circle cx="30" cy="29" r="7"/>'};
+function icon(key){return `<svg viewBox="0 0 42 42" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons[key]}</svg>`;}
+function score(d,label){
+ if(!d)return `<div class="ret-score ret-unavailable"><div><span>${label}</span><strong>Unavailable</strong></div><small>No observed pressure score in this dataset</small></div>`;
+ return `<div class="ret-score ${label==='Bowling'?'ret-bowl':'ret-bat'}"><div><span>${label}</span><strong>${d.score.toFixed(1)}<i>/100</i></strong></div><div class="ret-meter" aria-hidden="true"><span data-value="${d.score}"></span><b></b></div><small>${d.balls.toLocaleString()} pressure balls${d.provisional?' <em>· Provisional</em>':''}</small></div>`;
 }
-function startEdit(id){const e=state.entries.find(x=>x.id===id);if(!e)return;editingId=id;$('sqName').value=e.name;$('sqStatus').value=e.status;$('sqPrice').value=e.price===null?'':e.price;$('sqOrigin').value=e.origin;setTags(e.tags);$('sqFormTitle').textContent='Edit player';$('sqSubmit').textContent='Save changes';$('sqCancel').hidden=false;$('sqForm').scrollIntoView({block:'center'});}
-function stopEdit(){editingId=null;$('sqForm').reset();setTags([]);$('sqFormTitle').textContent='Add a player';$('sqSubmit').textContent='Add to squad';$('sqCancel').hidden=true;$('sqHint').textContent='';$('sqFormError').textContent='';}
-$('sqCancel').addEventListener('click',stopEdit);
-$('sqForm').addEventListener('submit',ev=>{ev.preventDefault();const f={name:$('sqName').value,status:$('sqStatus').value,price:$('sqPrice').value,origin:$('sqOrigin').value,tags:checkedTags()};
- const r=editingId===null?addEntry(state,f):updateEntry(state,editingId,f);if(r.error){$('sqFormError').textContent=r.error;return;}
- const status=f.status;stopEdit();$('sqStatus').value=status;commit(r.state);$('sqName').focus();});
-$('sqStart').addEventListener('change',()=>{const r=setPurse(state,$('sqStart').value);if(r.error){$('sqWarn').textContent=r.error;return;}commit(r.state);});
-$('sqTarget').addEventListener('change',()=>{const r=setTarget(state,$('sqTarget').value);if(r.error){$('sqWarn').textContent=r.error;return;}commit(r.state);});
-for(const r of document.querySelectorAll('input[name="sqMode"]'))r.addEventListener('change',()=>{if(r.checked&&r.value!==state.mode)commit(setMode(state,r.value));});
-$('sqAdjForm').addEventListener('submit',ev=>{ev.preventDefault();const r=addAdjustment(state,$('sqAdjAmount').value,$('sqAdjNote').value);if(r.error){$('sqWarn').textContent=r.error;return;}$('sqAdjForm').reset();commit(r.state);});
-$('sqUndo').addEventListener('click',()=>{if(!history.length)return;state=history.pop();save();stopEdit();render();});
-$('sqImportBtn').addEventListener('click',()=>{const text=$('sqImportText').value;const r=importRetained(state,text);const out=$('sqImportResult');out.textContent='';
- if(!r.imported&&!r.errors.length){out.textContent='Nothing to import. Add one player per line.';return;}
- if(r.imported)commit(r.state);
- out.appendChild(el('p',null,r.imported+' retained '+(r.imported===1?'player':'players')+' imported.'+(r.errors.length?' '+r.errors.length+' '+(r.errors.length===1?'line was':'lines were')+' skipped:':'')));
- if(r.errors.length){const ul=el('ul');for(const e of r.errors.slice(0,10))ul.appendChild(el('li',null,'Line '+e.line+': '+e.reason+' ('+e.text.trim().slice(0,60)+')'));out.appendChild(ul);}
- if(r.imported&&!r.errors.length)$('sqImportText').value='';});
-function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-const stamp=()=>new Date().toISOString().slice(0,10);
-$('sqDownload').addEventListener('click',()=>{download('squad-plan-'+stamp()+'.json',exportJSON(state),'application/json');$('sqBackupResult').textContent='Backup downloaded.';});
-$('sqDownloadCsv').addEventListener('click',()=>{download('squad-'+stamp()+'.csv',exportCSV(state),'text/csv');$('sqBackupResult').textContent='CSV downloaded. Use the JSON backup to restore a plan.';});
-$('sqRestore').addEventListener('change',async()=>{const f=$('sqRestore').files[0];if(!f)return;const r=restoreJSON(await f.text());$('sqRestore').value='';
- if(r.error){$('sqBackupResult').textContent=r.error;return;}
- if(state.entries.length&&!confirm('Replace the current plan with the backup?'))return;stopEdit();commit(r.state);$('sqBackupResult').textContent='Backup restored: '+r.state.entries.length+' players.';});
-$('sqClear').addEventListener('click',()=>{if(!state.entries.length&&state.purse===null&&!state.adjustments.length)return;if(!confirm('Clear the whole plan? You can use Undo straight after.'))return;stopEdit();commit(emptyState());});
-render();
+function evidence(d,label){
+ if(!d)return `<p><b>${label}:</b> no observed pressure score available.</p>`;
+ return `<p><b>${label}:</b> ${d.score.toFixed(1)}/100 · 80% conditional interval ${d.low.toFixed(0)}-${d.high.toFixed(0)} · ${d.balls.toLocaleString()} legal pressure balls across ${d.matches} matches.<br><span>${d.provisional?'Provisional, below the model exposure threshold. ':''}${d.shortlist?'Meets the final-list pressure-ball floor.':'Below the final-list pressure-ball floor; shown as squad context, not a final-list rank.'}</span></p>`;
+}
+function render(){
+ const term=$('retSearch').value.trim().toLowerCase();
+ const list=roster.filter(p=>(role==='All players'||p.role===roleMap[role])&&`${p.name} ${p.modelName||''}`.toLowerCase().includes(term));
+ $('retCount').textContent=`${list.length} of ${roster.length} players`;
+ $('retPlayers').innerHTML=list.length?list.map((p,i)=>`<article class="ret-player ${p.status==='Traded in'?'ret-trade':''}"><div class="ret-card-top"><span class="ret-role-icon">${icon(p.role==='Batter'?'bat':p.role==='Bowler'?'ball':p.role==='Wicket-keeper'?'keeper':'all')}</span><span class="ret-status">${p.captain?'Captain · ':''}${p.status}</span></div><p class="ret-role">${esc(p.role)} <span>· ${esc(p.country)}</span></p><h3>${esc(p.name)}</h3><div class="ret-scores">${score(p.batting,'Batting')}${score(p.bowling,'Bowling')}</div><details class="ret-evidence"><summary>Score details <span aria-hidden="true">+</span></summary><div>${evidence(p.batting,'Batting')}${evidence(p.bowling,'Bowling')}${p.modelName?`<p class="ret-alias">Analysis name: ${esc(p.modelName)}</p>`:''}</div></details></article>`).join(''):'<p class="ret-empty">No player matches this search. Try a different name or role.</p>';
+ $('retPlayers').querySelectorAll('[data-value]').forEach(e=>e.style.setProperty('--value',e.dataset.value+'%'));
+ $('retReset').hidden=role==='All players'&&!term;
+}
+$('retFilters').innerHTML=roles.map(r=>`<button type="button" data-ret-role="${r}" aria-pressed="${r===role}" class="${r===role?'active':''}">${r}</button>`).join('');
+$('retFilters').addEventListener('click',e=>{const b=e.target.closest('[data-ret-role]');if(!b)return;role=b.dataset.retRole;for(const x of $('retFilters').children){const on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-pressed',String(on));}render();});
+$('retSearch').addEventListener('input',render);
+$('retReset').addEventListener('click',()=>{role='All players';$('retSearch').value='';for(const x of $('retFilters').children){const on=x.dataset.retRole===role;x.classList.toggle('active',on);x.setAttribute('aria-pressed',String(on));}render();});
+try{const r=await fetch('./retained-squad.json');if(!r.ok)throw new Error('Roster request failed');const d=await r.json();roster=d.players;render();$('retCoverage').textContent=roster.filter(p=>p.batting||p.bowling).length;}
+catch{$('retPlayers').innerHTML='<p class="ret-empty" role="alert">The squad could not load. Please reload this page.</p>';}
+// Progressive hover depth, never a requirement for reading or operating a card.
+const motion=window.matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
+$('retPlayers').addEventListener('pointermove',e=>{if(!motion.matches)return;const c=e.target.closest('.ret-player');if(!c)return;const b=c.getBoundingClientRect();c.style.setProperty('--ry',`${((e.clientX-b.left)/b.width-.5)*3}deg`);c.style.setProperty('--rx',`${(.5-(e.clientY-b.top)/b.height)*3}deg`);});
+$('retPlayers').addEventListener('pointerout',e=>{const c=e.target.closest('.ret-player');if(c&&!c.contains(e.relatedTarget)){c.style.removeProperty('--rx');c.style.removeProperty('--ry');}});

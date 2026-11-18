@@ -12,7 +12,7 @@ A pressure-aware player analysis platform for historical T20 batting and bowling
 - **Situation-adjusted performance.** Three model families estimate the expected ball outcome, the run value of a position and changes in win probability, with held-out match evaluation: each match is scored by models trained on the other match groups.
 - **A fair, pooled ranking.** Batting and bowling are ranked on A, wicket-aware adjusted run value, over the shared pressure set with both innings pooled, recency weighting and partial pooling across the role population.
 - **A readable 0-100 score.** Estimated A is standardised against the role population and mapped through the standard Normal curve: 50 is the role average, higher is better.
-- **Interactive website.** Final batting and bowling lists, side-by-side player comparison, SVG interval charts, CSV export and a squad and purse planner, all as a static site with no database.
+- **Interactive website.** Final batting and bowling lists, side-by-side player comparison, SVG interval charts, CSV export and an officially sourced IPL 2027 retained-squad grid with available pressure scores, all as a static site with no database.
 - **Pitch assistant.** Ask questions about the rankings and the factors behind them in plain language, answered from the site's methodology and player summaries.
 
 ## Results at a glance
@@ -95,4 +95,4 @@ The site is static HTML, CSS and JavaScript with SVG charts and no build depende
 
 Match data: 843 completed matches from the competition-supplied match list, 2022-2026. Ball-by-ball records were recovered for those fixtures. The competition inputs and the recovered ball-by-ball records are not redistributed in this repository; `analysis/final-run/README.md` describes the inputs each pipeline stage expects.
 
-The analysis is historical reporting of recorded 2022-2026 performance under a stated pressure definition. The squad planner is a practice and tracking tool and does not record or place real bids.
+The analysis is historical reporting of recorded 2022-2026 performance under a stated pressure definition. The Squad page presents the official IPL 2027 retained core as of 18 November 2026, with separate batting and bowling pressure estimates from the wider modelled pool.
