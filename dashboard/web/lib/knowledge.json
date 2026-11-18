@@ -1,108 +1,75 @@
 {
  "site": "Royals Auction Arena - Pressure Lab (historical performance under pressure; not a retention or auction-buy recommendation)",
  "batting": {
-  "seasons": "IPL + T20I + Asia Cups 2022-2026",
-  "interval": "90%",
-  "source": "Pressure: final 18 November 2026 historical run, 843 completed matches (2022-2026). Overall and improvement: preserved earlier comparison exports.",
+  "seasons": "843 completed matches, 2022-2026",
+  "interval": "80%",
+  "source": "Final 18 November 2026 historical pressure analysis of 843 completed matches from the competition-supplied match list (2022-2026). Ball-by-ball records were recovered for those fixtures.",
   "method": [
    [
-    "Final pressure-performance list",
-    "Final historical calculation, 18 November 2026, based on 843 completed matches from 2022-2026. Both innings pooled. The pressure score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate: 50 is the role population mean and higher is better. It is an index, not a success probability, and no uncertainty penalty is subtracted. Recent matches weigh more, halving each year. Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls: 224 batters and 188 bowlers are eligible. The final rank lists assess consistent performance under pressure across 89 batters and 64 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately; all eligible players remain visible in the full tables, and players outside the final rank lists stay visible without a rank. No recent-activity filter, normal-ball floor or old skill shortlist."
+    "Pressure before the ball",
+    "The pressure score combines leverage (30%), collapse risk (25%), required-rate stress (25%) and match balance (20%), all measured from information available before the ball. The weights are a declared starting choice."
    ],
    [
-    "Earlier comparison export: Pressure and performance",
-    "BPI = 100 x probability of a dot or striker dismissal on the current legal ball. Pre-ball MPI/LPI features use nested match-grouped out-of-fold models. RAE is batter runs minus expected runs, minus a state-specific wicket penalty times the centered dismissal residual. Pressure = top 30% of delivery BPI (70th percentile); normal = bottom 55% (55th percentile); the middle 15% is left out. Cutoffs are quantiles over all supplied 2022-26 matches."
+    "One shared pressure set",
+    "A delivery is high pressure when its pre-ball score reaches 0.507: the top 35% of all 199,211 deliveries, 69,724 balls (35,922 first innings, 33,802 second innings) on one common scale. Every player is measured over the same fixed set of high-pressure states from all 843 matches."
    ],
    [
-    "Earlier comparison export: Uplift and uncertainty",
-    "PPF is recency-weighted pressure RAE100 minus normal RAE100. PPF_adj applies empirical-Bayes shrinkage. The displayed 90% uplift intervals are lambda-scaled match-bootstrap intervals, conditional on the fitted estimator, not posterior intervals. Pressure and overall levels have no intervals supplied in this export."
+    "Expected-performance models",
+    "Three model families estimate the expected ball outcome, the run value of a position and changes in win probability. The 843 matches are split into fixed groups; each match is evaluated using models trained on the other groups. Run expectancy values a wicket by the runs the batting side would still be expected to score. Win probability is one smooth model calibrated on held-out matches."
    ],
    [
-    "Earlier comparison export: Selection and quotas",
-    "Sample-qualified requires at least 60 pressure and 200 normal balls. The analysis top 10 additionally uses an active-player/shortlist/performance funnel. The 3 opener / 4 middle / 3 finisher quota list fills role slots from the same funnel order. Team labels are the latest observed team in the data (club or country), not current retention or auction status."
+    "Batting: value above expectation",
+    "A is wicket-aware adjusted run value: runs scored plus the change in expected remaining team runs, compared with what an average batter was expected to produce in the same situations and bowling contexts. High-pressure A sets the batting rank."
    ],
    [
-    "Earlier comparison export: Scope and checks",
-    "This is a data-analysis project: rankings describe observed performance on the supplied matches under the defined pressure measure. Internal consistency check: split-half correlation across match samples is -0.00 for all batsmen and -0.02 for eligible batsmen, so fine rank differences are approximate. Baseline comparisons are in-sample. Sparse wicket-penalty cells add unquantified uncertainty."
+    "Recency and partial pooling",
+    "Player estimates use a 365-day half-life recency weighting chosen in advance. Partial pooling combines individual evidence with the population pattern, so players with fewer pressure balls get a more balanced estimate."
    ],
    [
-    "Earlier comparison export: Data exclusions",
-    "200,964 delivery rows in scope, 192,415 legal. No-ball batter runs and non-legal-ball dismissals are excluded. Retired hurt/out does not count as striker dismissal. Rain-affected chases are included and scored against the revised target and the balls allotted at each delivery. Super overs are not part of the analysis."
+    "The 0-100 score",
+    "Score = 100 x Phi(z), where z compares estimated A with the role average in population standard deviations. 50 is the role average. Batting and bowling use separate scales."
+   ],
+   [
+    "Selection",
+    "Every identity in the modelled pool (838 batters, 572 bowlers) is scored. The final lists cover the 14 batters and 16 bowlers with substantial high-pressure evidence; the report presents the top 10 of each."
    ]
   ],
-  "caveat": "The final list ranks performance under pressure itself, based on 843 completed matches from 2022-2026. The displayed 80% score intervals are conditional and wide (about 78 points for batting and 75 for bowling on average), so treat close ranks as approximate; they omit model-form and calibration uncertainty. One rain-revision timeline (Bangladesh v Afghanistan, 16 July 2023) is unverified; its stored chase states remain included and labelled uncertain. Overall and improvement views are preserved earlier comparison exports with their own rules."
+  "caveat": "The final list ranks performance under pressure itself, based on 843 completed matches from 2022-2026. The 80% score intervals are conditional and wide (about 77 points for top-10 batters and 75 for top-10 bowlers), so treat close ranks as approximate; they omit model-form and calibration uncertainty."
  },
  "bowling": {
-  "seasons": "IPL + T20I + Asia Cups; 2023-26 scored, 2022 season training-only",
-  "interval": null,
-  "source": "Pressure: final 18 November 2026 historical run, 843 completed matches (2022-2026). Overall and improvement: preserved earlier comparison exports.",
+  "seasons": "843 completed matches, 2022-2026",
+  "interval": "80%",
+  "source": "Final 18 November 2026 historical pressure analysis of 843 completed matches from the competition-supplied match list (2022-2026). Ball-by-ball records were recovered for those fixtures.",
   "method": [
    [
-    "Final pressure-performance list",
-    "Final historical calculation, 18 November 2026, based on 843 completed matches from 2022-2026. Both innings pooled. The pressure score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate: 50 is the role population mean and higher is better. It is an index, not a success probability, and no uncertainty penalty is subtracted. Recent matches weigh more, halving each year. Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls: 224 batters and 188 bowlers are eligible. The final rank lists assess consistent performance under pressure across 89 batters and 64 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately; all eligible players remain visible in the full tables, and players outside the final rank lists stay visible without a rank. No recent-activity filter, normal-ball floor or old skill shortlist."
+    "Pressure before the ball",
+    "The pressure score combines leverage (30%), collapse risk (25%), required-rate stress (25%) and match balance (20%), all measured from information available before the ball. The weights are a declared starting choice."
    ],
    [
-    "Earlier comparison export: Pressure definitions",
-    "BoPI = 100 x predicted chance the ball goes for a genuine boundary, from facts known before the ball. Pressure = top 30% BoPI (70th percentile); normal = bottom 55% (55th percentile). Cutoffs are quantiles of training-season deliveries."
+    "One shared pressure set",
+    "A delivery is high pressure when its pre-ball score reaches 0.507: the top 35% of all 199,211 deliveries, 69,724 balls (35,922 first innings, 33,802 second innings) on one common scale. Every player is measured over the same fixed set of high-pressure states from all 843 matches."
    ],
    [
-    "Earlier comparison export: Performance and ordering",
-    "RAE = expected charged runs - actual charged runs + 20 per credited wicket. Lists show runs saved vs expectation per 100 legal balls."
+    "Expected-performance models",
+    "Three model families estimate the expected ball outcome, the run value of a position and changes in win probability. The 843 matches are split into fixed groups; each match is evaluated using models trained on the other groups. Run expectancy values a wicket by the runs the batting side would still be expected to score. Win probability is one smooth model calibrated on held-out matches."
    ],
    [
-    "Earlier comparison export: Uplift and intervals",
-    "BPF = pressure RAE100 - normal RAE100; BPF_adj = BPF x pressure_balls / (pressure_balls + 60). The final pooled ranking orders by BPF_adj."
+    "Bowling: value saved",
+    "A is the reference expectation minus the batting run value conceded, using the same wicket-aware frame from the bowling side. Both innings are pooled. High-pressure A sets the bowling rank."
    ],
    [
-    "Earlier comparison export: Expectation model",
-    "Season-ordered out-of-sample scoring: 2022 matches train the expectations only and carry no scores; 2023-26 matches are scored."
+    "Recency and partial pooling",
+    "Player estimates use a 365-day half-life recency weighting chosen in advance. Partial pooling combines individual evidence with the population pattern, so players with fewer pressure balls get a more balanced estimate."
    ],
    [
-    "Earlier comparison export: Consistency and limits",
-    "This is a data-analysis project: lists describe observed performance on the supplied matches. Internal consistency check: alternate-match BPF rank correlation 0.05, so fine placings are approximate. Boundary risk is a proxy for pressure."
+    "The 0-100 score",
+    "Score = 100 x Phi(z), where z compares estimated A with the role average in population standard deviations. 50 is the role average. Batting and bowling use separate scales."
    ],
    [
-    "Earlier comparison export: Team and sample scope",
-    "Rates are per 100 legal balls; wides and no-balls add to the cost but not the ball count. 158,496 scored delivery attempts across 687 fixtures (2023-26)."
+    "Selection",
+    "Every identity in the modelled pool (838 batters, 572 bowlers) is scored. The final lists cover the 14 batters and 16 bowlers with substantial high-pressure evidence; the report presents the top 10 of each."
    ]
   ],
-  "definitions": {
-   "pressureChase": "Pressure balls are the highest-BoPI (boundary-risk) 30% of deliveries; normal balls are the lowest 55%.",
-   "pressureFirstInnings": "The same BoPI buckets apply in both innings; first-innings lists use first-innings deliveries only.",
-   "team": "Team is the latest observed team in the data (club or country), not current auction availability.",
-   "expectation": "BoPI = 100 x predicted boundary chance from a model trained on earlier in-sample seasons only."
-  },
-  "units": {
-   "order": "Order follows the displayed metric value, then name.",
-   "runsSavedPer100": "Runs saved vs model expectation per 100 legal balls (wides and no-balls add to the cost but not the ball count). Positive = saved runs.",
-   "runsSavedCi": "The 95% interval on the pooled uplift (BPF_adj) comes from match-cluster bootstrap resampling; per-innings views have no interval supplied.",
-   "uplift": "Uplift = pressure runs saved per 100 legal balls minus the bowler's own normal-balls rate. The pooled headline ranking uses BPF_adj, which shrinks uplift toward zero for small pressure samples.",
-   "wicketsAboveExpectedPer100": "Credited wickets (bowled, caught, caught & bowled, lbw, stumped, hit wicket) count 20 runs each in RAE; no run-outs.",
-   "rankRange": "Not used in this version: a single wicket value of 20 is fixed."
-  },
-  "minimumBalls": {
-   "overall": "at least 200 legal balls",
-   "pooledUplift": "at least 60 pressure and 200 normal legal balls",
-   "chasePressureLevel": "at least 60 pressure legal balls",
-   "chasePressureUplift": "at least 60 pressure and 120 normal legal balls",
-   "firstInningsPressureLevel": "at least 40 pressure legal balls",
-   "firstInningsPressureUplift": "at least 40 pressure and 100 normal legal balls",
-   "pooledPressure": 100
-  },
-  "caveat": "The final list ranks performance under pressure itself, based on 843 completed matches from 2022-2026. The displayed 80% score intervals are conditional and wide (about 78 points for batting and 75 for bowling on average), so treat close ranks as approximate; they omit model-form and calibration uncertainty. One rain-revision timeline (Bangladesh v Afghanistan, 16 July 2023) is unverified; its stored chase states remain included and labelled uncertain. Overall and improvement views are preserved earlier comparison exports with their own rules.",
-  "listSizes": {
-   "earlier_pooledUplift": 10,
-   "earlier_overall": 10,
-   "earlier_chasePressureLevel": 10,
-   "earlier_chasePressureUplift": 10,
-   "earlier_firstInningsPressureLevel": 10,
-   "earlier_firstInningsPressureUplift": 10,
-   "pooledPressure": 572
-  }
- },
- "selection": {
-  "final": "Final list: pressure performance only, both innings pooled. The score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate (50 = role population mean). Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls (224 batters, 188 bowlers eligible); the final rank lists assess consistent performance under pressure across 89 batters and 64 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately. No activity filter or skill shortlist. Earlier-prefixed lists are preserved comparison exports.",
-  "roleVariant": "The batting 3/4/3 role-balanced list is supplementary and can differ from the default analysis top 10.",
-  "scope": "Historical analysis, no auction-availability restriction is imposed by the Round 1 clarification."
+  "caveat": "The final list ranks performance under pressure itself, based on 843 completed matches from 2022-2026. The 80% score intervals are conditional and wide (about 77 points for top-10 batters and 75 for top-10 bowlers), so treat close ranks as approximate; they omit model-form and calibration uncertainty."
  }
 }

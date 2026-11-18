@@ -2,7 +2,7 @@
   "name": "royals-pressure-dashboard",
   "version": "1.0.0",
   "private": true,
-  "description": "Local historical batting and bowling pressure analysis dashboard",
+  "description": "Historical batting and bowling pressure-analysis website: final 18 November 2026 pressure-performance lists",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test tests/*.test.mjs",
-    "import": "python3 scripts/import_data.py",
+    "import": "python3 scripts/build_final_dataset.py",
     "build": "node scripts/export-static.mjs"
   }
 }

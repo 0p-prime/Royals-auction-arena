@@ -1,14 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {filterPlayers,rankPlayers,sourcePlayers,sortedPlayers,validateDataset} from '../web/core.js';
-const a={id:'A',name:'A',team:'Team',role:'middle',pressureBalls:80,eligible:true,shortlisted:false,top10:true,quota:false,uplift:2,pressure:1,overall:0,normal:-1,ciLow:-2,ciHigh:5,order:2};
-const b={...a,id:'B',name:'B',role:'opener',eligible:false,pressureBalls:20,uplift:8,order:1};
-test('filters combine pool role minimum and case-insensitive search',()=>{assert.deepEqual(filterPlayers([a,b],{role:'middle',search:'TEAM',pool:'eligible',minBalls:60}),[a]);assert.deepEqual(filterPlayers([a,b],{pool:'all',minBalls:40}),[a]);});
-test('ranked metrics do not mutate their input',()=>{const original=[a,b];assert.deepEqual(rankPlayers(original),[b,a]);assert.deepEqual(original,[a,b]);});
-test('bowling composite order is independent from runs ordering',()=>{const r=[{...a,order:1,uplift:-1},{...b,order:2,uplift:5}];assert.equal(sortedPlayers(r,'uplift','bowling')[0].order,1);assert.equal(sortedPlayers(r,'uplift','bowling','runs')[0].order,2);});
-test('all five bowling sources remain distinct',()=>{const lists={overall:[1],chasePressureLevel:[2],chasePressureUplift:[3],firstInningsPressureLevel:[4],firstInningsPressureUplift:[5]};const d={disciplines:{bowling:{lists}}};assert.deepEqual(sourcePlayers(d,'bowling','overall'),[1]);assert.deepEqual(sourcePlayers(d,'bowling','pressure','chase'),[2]);assert.deepEqual(sourcePlayers(d,'bowling','uplift','chase'),[3]);assert.deepEqual(sourcePlayers(d,'bowling','pressure','first'),[4]);assert.deepEqual(sourcePlayers(d,'bowling','uplift','first'),[5]);});
-test('missing metric never creates a fabricated value',()=>{assert.deepEqual(rankPlayers([{...a,uplift:null}]),[]);});
-test('schema rejects missing and non-finite metric data',()=>{assert.throws(()=>validateDataset({}));assert.throws(()=>validateDataset({schemaVersion:1,disciplines:{batting:{players:[{...a,uplift:Infinity}]}}}));assert.ok(validateDataset({schemaVersion:1,disciplines:{batting:{players:[a]}}}));});
-
-test('complete pooled pressure source overrides earlier cohorts for both disciplines',()=>{const pooled=[{...a,name:'Pressure leader',pressure:100}];for(const t of ['batting','bowling']){const d={disciplines:{[t]:{players:[b],lists:{pooledPressure:pooled}}}};assert.deepEqual(sourcePlayers(d,t,'pressure','chase'),pooled);}});
-test('pressure score ties use exposure before names',()=>{const less={...a,name:'A',pressureBalls:60},more={...a,name:'Z',pressureBalls:80};assert.equal(rankPlayers([less,more],'pressure')[0].name,'Z');});
+import {filterPlayers,rankPlayers,validateDataset} from '../web/core.js';
+const a={id:'A',name:'A One',score:71.6,ciLow:25.1,ciHigh:96.6,aValue:0.019,hpBalls:573,hpMatches:72,rank:1,top10:true};
+const b={id:'B',name:'B Two',score:66.7,ciLow:21.5,ciHigh:95.2,aValue:0.012,hpBalls:1005,hpMatches:97,rank:2,top10:true};
+const c={id:'C',name:'C Three',score:40.2,ciLow:5,ciHigh:83,aValue:0.001,hpBalls:780,hpMatches:80,rank:12,top10:false};
+test('pool, minimum balls and case-insensitive search combine',()=>{
+ assert.deepEqual(filterPlayers([a,b,c],{pool:'top10'}),[a,b]);
+ assert.deepEqual(filterPlayers([a,b,c],{pool:'all',minBalls:800}),[b]);
+ assert.deepEqual(filterPlayers([a,b,c],{pool:'all',search:'TWO'}),[b]);
+});
+test('ranking orders by score, then exposure, without mutating input',()=>{
+ const input=[c,a,b];assert.deepEqual(rankPlayers(input),[a,b,c]);assert.deepEqual(input,[c,a,b]);
+ const less={...a,id:'L',name:'L',hpBalls:60},more={...a,id:'M',name:'M',hpBalls:80};
+ assert.equal(rankPlayers([less,more])[0].name,'M');
+});
+test('missing score never creates a fabricated value',()=>{assert.deepEqual(rankPlayers([{...a,score:null}]),[]);});
+test('schema validates the final-list dataset shape',()=>{
+ assert.throws(()=>validateDataset({}));
+ assert.throws(()=>validateDataset({schemaVersion:1,disciplines:{batting:{players:[a]}}}));
+ assert.throws(()=>validateDataset({schemaVersion:2,disciplines:{batting:{players:[{...a,ciLow:Infinity}]}}}));
+ assert.throws(()=>validateDataset({schemaVersion:2,disciplines:{batting:{players:[a,a]}}}));
+ assert.ok(validateDataset({schemaVersion:2,disciplines:{batting:{players:[a,b]},bowling:{players:[c]}}}));
+});
+test('the built site dataset passes validation and matches the report top 10',async()=>{
+ const {readFileSync}=await import('node:fs');
+ const d=validateDataset(JSON.parse(readFileSync(new URL('../web/dataset.json',import.meta.url),'utf8')));
+ assert.equal(d.disciplines.batting.players.length,14);
+ assert.equal(d.disciplines.bowling.players.length,16);
+ assert.deepEqual(d.disciplines.batting.players.filter(p=>p.top10).map(p=>p.name),['TH David','Tilak Varma','SA Yadav','JC Buttler','N Pooran','RK Singh','SO Hetmyer','Ishan Kishan','S Dube','SS Iyer']);
+ assert.deepEqual(d.disciplines.bowling.players.filter(p=>p.top10).map(p=>p.name),['CV Varun','AR Patel','B Kumar','JJ Bumrah','Kuldeep Yadav','HV Patel','M Theekshana','JO Holder','YS Chahal','Arshdeep Singh']);
+ for(const disc of ['batting','bowling'])for(const p of d.disciplines[disc].players){assert.ok(p.hpBalls>0);assert.ok(p.ciLow<p.score&&p.score<p.ciHigh);}
+});
