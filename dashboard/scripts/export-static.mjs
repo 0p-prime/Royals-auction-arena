@@ -6,7 +6,7 @@ const dataset=process.argv[2]||path.join(root,'private','dataset.json');
 const output=process.argv[3]||path.join(root,'dist');
 const contents=await readFile(dataset,'utf8');validateDataset(JSON.parse(contents));
 await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
-for(const file of ['index.html','app.js','core.js','style.css','assistant.js','squad.js','squad-core.js'])await copyFile(path.join(root,'web',file),path.join(output,file));
+for(const file of ['index.html','app.js','core.js','style.css','retained.css','arena.css','retained-squad.json','assistant.js','squad.js','squad-core.js'])await copyFile(path.join(root,'web',file),path.join(output,file));
 await writeFile(path.join(output,'dataset.json'),contents);
 await mkdir(path.join(output,'assets'),{recursive:true});
 for(const f of ['arena-crest.svg','arena-logo.png','arena-icon.png'])await copyFile(path.join(root,'web/assets',f),path.join(output,'assets',f));
