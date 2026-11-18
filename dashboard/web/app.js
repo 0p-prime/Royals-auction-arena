@@ -107,3 +107,9 @@ for(const b of document.querySelectorAll('[data-mdisc]'))b.addEventListener('cli
 function setView(v){view=v;document.querySelector('.board').hidden=v!=='rankings';document.querySelector('.compare-section').hidden=v!=='compare';document.querySelectorAll('[data-view]').forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});}
 for(const b of document.querySelectorAll('[data-view]'))b.addEventListener('click',()=>setView(b.dataset.view));
 window.addEventListener('hashchange',route);
+// Keep keyboard skipping within the current view, without changing its route.
+document.querySelector('.skip-link')?.addEventListener('click',event=>{
+ event.preventDefault();const main=document.querySelector('main');main.tabIndex=-1;main.focus({preventScroll:true});main.scrollIntoView({behavior:'instant',block:'start'});
+});
+// A new arena should start at its heading rather than the previous page's scroll.
+window.addEventListener('hashchange',()=>window.scrollTo({top:0,behavior:'instant'}));
