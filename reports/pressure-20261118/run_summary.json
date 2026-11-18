@@ -1,0 +1,43 @@
+{
+  "run": "2026-11-18 final historical pressure analysis, revised filter (top 35% pressure balls)",
+  "method": {
+    "pressure_components": {
+      "leverage": 0.3,
+      "collapse": 0.25,
+      "required_run_rate": 0.25,
+      "match_balance": 0.2
+    },
+    "filter": "pooled top 35% pressure balls, both innings, common calibrated scale; only filtered balls enter player estimates",
+    "recency": "365-day half-life at the player estimate; population fit unweighted",
+    "score": "100 x Normal cumulative probability of the standardized pressure-performance estimate; 50 = role population mean; no uncertainty penalty",
+    "matches": 843,
+    "balls": 199211,
+    "filtered_balls": 69724
+  },
+  "eligibility": {
+    "pool_innings": [
+      1,
+      2
+    ],
+    "activity_filter": false,
+    "normal_floor": false,
+    "normal_overall_shortlist": false,
+    "minimum_pressure_legal_balls_by_discipline": {
+      "batting": 75,
+      "bowling": 100
+    },
+    "eligible": {
+      "batting": 224,
+      "bowling": 188
+    },
+    "final_list": {
+      "batting": 89,
+      "bowling": 64
+    }
+  },
+  "intervals": "80% score intervals conditional on the 32-draw rating mixture with fixed models and hyperparameters; wide; not full-pipeline coverage",
+  "top10_files": [
+    "batting_top10_pressure.csv",
+    "bowling_top10_pressure.csv"
+  ]
+}

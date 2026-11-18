@@ -7,7 +7,7 @@
   "method": [
    [
     "Final pressure-performance list",
-    "Final historical calculation, 18 November 2026, based on 843 completed matches from 2022-2026. Both innings pooled. The pressure score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate: 50 is the role population mean and higher is better. It is an index, not a success probability, and no uncertainty penalty is subtracted. Recent matches weigh more, halving each year. Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls: 198 batters and 160 bowlers are eligible. The final rank lists assess consistent performance under pressure across 65 batters and 46 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately; all eligible players remain visible in the full tables, and players outside the final rank lists stay visible without a rank. No recent-activity filter, normal-ball floor or old skill shortlist."
+    "Final historical calculation, 18 November 2026, based on 843 completed matches from 2022-2026. Both innings pooled. The pressure score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate: 50 is the role population mean and higher is better. It is an index, not a success probability, and no uncertainty penalty is subtracted. Recent matches weigh more, halving each year. Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls: 224 batters and 188 bowlers are eligible. The final rank lists assess consistent performance under pressure across 89 batters and 64 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately; all eligible players remain visible in the full tables, and players outside the final rank lists stay visible without a rank. No recent-activity filter, normal-ball floor or old skill shortlist."
    ],
    [
     "Earlier comparison export: Pressure and performance",
@@ -39,7 +39,7 @@
   "method": [
    [
     "Final pressure-performance list",
-    "Final historical calculation, 18 November 2026, based on 843 completed matches from 2022-2026. Both innings pooled. The pressure score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate: 50 is the role population mean and higher is better. It is an index, not a success probability, and no uncertainty penalty is subtracted. Recent matches weigh more, halving each year. Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls: 198 batters and 160 bowlers are eligible. The final rank lists assess consistent performance under pressure across 65 batters and 46 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately; all eligible players remain visible in the full tables, and players outside the final rank lists stay visible without a rank. No recent-activity filter, normal-ball floor or old skill shortlist."
+    "Final historical calculation, 18 November 2026, based on 843 completed matches from 2022-2026. Both innings pooled. The pressure score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate: 50 is the role population mean and higher is better. It is an index, not a success probability, and no uncertainty penalty is subtracted. Recent matches weigh more, halving each year. Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls: 224 batters and 188 bowlers are eligible. The final rank lists assess consistent performance under pressure across 89 batters and 64 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately; all eligible players remain visible in the full tables, and players outside the final rank lists stay visible without a rank. No recent-activity filter, normal-ball floor or old skill shortlist."
    ],
    [
     "Earlier comparison export: Pressure definitions",
@@ -97,11 +97,11 @@
    "earlier_chasePressureUplift": 10,
    "earlier_firstInningsPressureLevel": 10,
    "earlier_firstInningsPressureUplift": 10,
-   "pooledPressure": 646
+   "pooledPressure": 572
   }
  },
  "selection": {
-  "final": "Final list: pressure performance only, both innings pooled. The score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate (50 = role population mean). Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls (198 batters, 160 bowlers eligible); the final rank lists assess consistent performance under pressure across 65 batters and 46 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately. No activity filter or skill shortlist. Earlier-prefixed lists are preserved comparison exports.",
+  "final": "Final list: pressure performance only, both innings pooled. The score is 100 x the Normal cumulative probability of the standardized pressure-performance estimate (50 = role population mean). Eligibility needs at least 75 (batting) or 100 (bowling) legal high-pressure balls (224 batters, 188 bowlers eligible); the final rank lists assess consistent performance under pressure across 89 batters and 64 bowlers drawn from the eligible pools, ranked on pressure performance with consistency assessed separately. No activity filter or skill shortlist. Earlier-prefixed lists are preserved comparison exports.",
   "roleVariant": "The batting 3/4/3 role-balanced list is supplementary and can differ from the default analysis top 10.",
   "scope": "Historical analysis, no auction-availability restriction is imposed by the Round 1 clarification."
  }
