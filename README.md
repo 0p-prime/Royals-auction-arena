@@ -1,299 +1,98 @@
 # Royals Auction Arena
 
-## Current final lists: pressure performance, 17 November 2026
-
-The final report now ranks pressure performance itself, not improvement over normal. Both innings are pooled. For consistency in selection, players are assessed over a substantial sample of pressure situations and ranked by their performance within that sample. There is no recent-activity filter, normal-ball minimum or old normal/overall skill shortlist.
-
-- [10-page report](reports/pressure-20261118/Royals_Auction_Arena_Pressure_Report.pdf)
-- [Batting top 10](reports/pressure-20261118/batting_top10_pressure.csv)
-- [Bowling top 10](reports/pressure-20261118/bowling_top10_pressure.csv)
-- [Run configuration and provenance](reports/pressure-20261118/run_summary.json)
-
-These results are a new offline expectation-model calculation on the saved reconstructed pressure checkpoint, authorized on 17 November. They do not claim numerical reproduction of the previous published run. The dashboard opens on this new pooled pressure list. Earlier overall and shrunk-uplift comparison exports remain available and are labeled separately; their intervals are not intervals for the new pressure scores.
-
-The remaining sections below document the earlier uplift analysis and its preserved comparison outputs. Their older final-list terminology is historical; the pressure report linked above is the current final selection.
-
-
-A pressure-aware player analysis platform for historical T20 batting and bowling performance. Royals Auction Arena measures every batter and bowler against what a model expects from the match situation, then shows who delivers above that level overall, in high-pressure moments, and when the stakes rise. It covers 867 ball-by-ball fixtures from the supplied CSV data (IPL, T20I and Asia Cup tournaments, 2022-26) and ships as three connected parts: a bowling pipeline, a batting pipeline and an interactive analysis website.
+A pressure-aware player analysis platform for historical T20 batting and bowling performance. Royals Auction Arena measures every delivery against what the match situation demanded, isolates the highest-pressure states across 843 completed matches (2022-2026), and ranks the batters and bowlers who produced the best recorded performance in those states. It ships as three connected parts: a final-run analysis pipeline, an interactive analysis website and the Pitch assistant.
 
 **Live site:** https://royals-auction-arena.vercel.app/
+**Round 1 report:** [reports/Royals_Auction_Arena_Round1_Report.pdf](reports/Royals_Auction_Arena_Round1_Report.pdf)
 
 ## Highlights
 
-- **Situation-aware player scoring.** Each delivery is judged against model expectation for its match state, so players are compared on what they did relative to the situation they faced.
-- **Pressure and uplift as separate lenses.** See who performs under pressure and who raises their game compared with their own normal level, in both batting and bowling.
-- **A funnel-based final list plus innings-aware views.** The published bowling top 10 comes from an eligibility and shortlist funnel ordered by shrunk pressure-minus-normal uplift; overall, chase and first-innings views sit alongside it.
-- **Interactive website.** Batting and bowling views, role/style, team and sample filters, side-by-side player comparison, responsive charts with interval labels, and CSV export of the current view.
-- **Pitch assistant.** Ask questions about rankings and the factors behind them in plain language, answered from the site's methodology and player summaries.
-- **Scripted pipelines.** Scripted steps, fixed seeds and configs, frozen trained models for bowling, and test suites for both packages.
-- **Leakage-controlled modelling.** Features use pre-ball information. Batting uses match-grouped out-of-fold scoring; bowling uses earlier-season scoring. These are different validation designs, not a single chronology claim.
-- **Lightweight deployment.** The site is static HTML, CSS and JavaScript with SVG charts, no database and no npm dependencies.
-
-The analysis describes past performance under a stated pressure definition. The Round 1 output is two ordered top-10 lists and an explanation of the method, not a retention or auction-buy recommendation. The squad planner is an optional practice tool.
-
-## Contents
-
-- [Highlights](#highlights)
-- [What it measures](#what-it-measures)
-- [Results at a glance](#results-at-a-glance)
-- [Repository layout](#repository-layout)
-- [Architecture](#architecture)
-- [Quick start](#quick-start)
-- [Methodology summary](#methodology-summary)
-- [Key formulas](#key-formulas)
-- [Validation](#validation)
-- [Pitch assistant](#pitch-assistant)
-- [Data and attribution](#data-and-attribution)
-
-## What it measures
-
-Every list answers one question, and each lens is reported separately by design, so every ranking stays interpretable on its own terms.
-
-| Lens | Question | Scope |
-| --- | --- | --- |
-| Overall | How does the player compare with model expectation across all deliveries? | Both disciplines |
-| Under pressure | How does the player perform in high-pressure match states? | Batting; bowling per innings |
-| Uplift | How does pressure-state performance differ from the player's own normal-state performance? | Batting; bowling per innings |
-
-The published bowling list pools both innings through the selection funnel: eligibility floors, an overall-skill shortlist, then ordering by shrunk pressure-minus-normal uplift (BPF_adj). Overall, chase and first-innings views sit alongside it as supplementary lenses on the same delivery scores. Batting uses legal balls faced and bowling uses legal balls bowled, so each discipline is read on its own scale.
+- **Pressure defined before the ball.** Every delivery is scored from the match state before it begins: score, wickets, balls remaining, target, phase, venue, season and recent events. The pressure measure never sees the outcome of the ball it describes.
+- **One shared pressure set.** The top 35% of all 199,211 deliveries (69,724 balls) form a single high-pressure set on one common scale across both innings and all 843 matches. Every player is measured over the same fixed states.
+- **Situation-adjusted performance.** Three model families estimate the expected ball outcome, the run value of a position and changes in win probability, with held-out match evaluation: each match is scored by models trained on the other match groups.
+- **A fair, pooled ranking.** Batting and bowling are ranked on A, wicket-aware adjusted run value, over the shared pressure set with both innings pooled, recency weighting and partial pooling across the role population.
+- **A readable 0-100 score.** Estimated A is standardised against the role population and mapped through the standard Normal curve: 50 is the role average, higher is better.
+- **Interactive website.** Final batting and bowling lists, side-by-side player comparison, SVG interval charts, CSV export and a squad and purse planner, all as a static site with no database.
+- **Pitch assistant.** Ask questions about the rankings and the factors behind them in plain language, answered from the site's methodology and player summaries.
 
 ## Results at a glance
 
-Top-10 views from the current 2022-26 analysis of the supplied matches, matching the live site. Whiskers show the published interval for each chart: 90% for batting uplift, 95% match-bootstrap for bowling uplift.
+Final top 10, ranked by the 0-100 pressure score over the shared 2022-2026 high-pressure states. The full final lists (14 batters, 16 bowlers) live in [reports/final_lists](reports/final_lists) and on the website.
 
-Batting final list (shrunk pressure-minus-normal uplift, PPF_adj):
+| # | Batters | Score | 80% interval |
+| --- | --- | --- | --- |
+| 1 | TH David | 71.6 | 25 - 97 |
+| 2 | Tilak Varma | 66.7 | 22 - 95 |
+| 3 | SA Yadav | 57.5 | 15 - 92 |
+| 4 | JC Buttler | 56.1 | 14 - 92 |
+| 5 | N Pooran | 55.6 | 14 - 92 |
+| 6 | RK Singh | 53.4 | 12 - 91 |
+| 7 | SO Hetmyer | 52.1 | 12 - 91 |
+| 8 | Ishan Kishan | 49.4 | 10 - 90 |
+| 9 | S Dube | 48.4 | 10 - 89 |
+| 10 | SS Iyer | 45.3 | 9 - 87 |
 
-| # | Batter | Uplift /100 |
-| --- | --- | --- |
-| 1 | TH David | 72.5 |
-| 2 | C Green | 53.4 |
-| 3 | V Suryavanshi | 36.4 |
-| 4 | Abhishek Sharma | 34.1 |
-| 5 | V Kohli | 24.4 |
-| 6 | RR Hendricks | 24.3 |
-| 7 | RM Patidar | 23.7 |
-| 8 | AD Russell | 23.0 |
-| 9 | MR Marsh | 21.3 |
-| 10 | GD Phillips | 20.5 |
-
-![Batting top 10 by pressure uplift](docs/charts/batting-uplift-top10.png)
-
-Bowling final list (funnel order by shrunk uplift, BPF_adj):
-
-| # | Bowler | Uplift /100 |
-| --- | --- | --- |
-| 1 | M Pathirana | 109.0 |
-| 2 | CA Young | 34.3 |
-| 3 | PWH de Silva | 33.7 |
-| 4 | JDS Neesham | 29.7 |
-| 5 | MR Adair | 24.9 |
-| 6 | Noor Ahmad | 22.6 |
-| 7 | Mustafizur Rahman | 19.7 |
-| 8 | AU Rashid | 12.4 |
-| 9 | BV Sears | 11.2 |
-| 10 | Taskin Ahmed | 10.5 |
-
-![Bowling top 10 by shrunk pressure uplift](docs/charts/bowling-uplift-top10.png)
-
-The chase-innings uplift view offers a second, innings-specific lens on the same delivery scores.
-
-![Bowling chase-innings uplift](docs/charts/bowling-chase-uplift-top10.png)
-
-Exact placings depend on the method's pressure cutoffs, sample floors and selection rules, so fine rank differences are approximate. The full lists, with filters, side-by-side comparison and CSV export, are on the [live site](https://royals-auction-arena.vercel.app/).
+| # | Bowlers | Score | 80% interval |
+| --- | --- | --- | --- |
+| 1 | CV Varun | 70.5 | 25 - 96 |
+| 2 | AR Patel | 67.9 | 22 - 95 |
+| 3 | B Kumar | 67.4 | 21 - 96 |
+| 4 | JJ Bumrah | 66.6 | 20 - 95 |
+| 5 | Kuldeep Yadav | 65.0 | 19 - 95 |
+| 6 | HV Patel | 63.5 | 19 - 94 |
+| 7 | M Theekshana | 61.3 | 17 - 94 |
+| 8 | JO Holder | 60.1 | 16 - 93 |
+| 9 | YS Chahal | 59.2 | 16 - 93 |
+| 10 | Arshdeep Singh | 51.3 | 11 - 90 |
 
 ## Repository layout
 
-```
-.
-├── bowling-analysis/   Python pipeline, models, tests, frozen estimators
-├── batting-analysis/   Python pipeline, config, methodology, tests
-└── dashboard/          Static website, importer, exporter, serverless assistant
-```
-
 | Path | Contents |
 | --- | --- |
-| [`bowling-analysis/`](bowling-analysis/) | Ball-by-ball loading and features, boundary-risk (BoPI) model, expected runs and wickets, pressure scoring (BoPI/BPF), selection funnel, validation, 61 tests (count from its README). Frozen estimators in `outputs/frozen_models.joblib`. See [its README](bowling-analysis/README.md). |
-| [`batting-analysis/`](batting-analysis/) | Pre-ball pressure index (BPI) via nested out-of-fold stacking, expected runs and dismissal, pressure performance factor (PPF) with empirical-Bayes shrinkage, selection funnel, 18 tests (count from its README). See [its README](batting-analysis/README.md) and [METHODOLOGY.md](batting-analysis/METHODOLOGY.md). |
-| [`dashboard/`](dashboard/) | Hash-routed static site (HTML, CSS, JavaScript, SVG charts, JSON data), data importer, static exporter, integrity checks, Vercel serverless assistant. See [its README](dashboard/README.md) and [`dashboard/docs/`](dashboard/docs/). |
-
-## Architecture
-
-```
-Cricsheet IPL JSON
-        |
-        v
- bowling-analysis/         batting-analysis/
- (Python, pandas,          (Python, scikit-learn,
-  scikit-learn, XGBoost)    LightGBM, statsmodels)
-        |                        |
-        +---- aggregate exports --+
-                     |
-                     v
-        dashboard/scripts/build_dataset.py
-        (schema v1, SHA-256 provenance)
-                     |
-          +----------+-----------+
-          |                      |
-          v                      v
- export-static.mjs -> dist/   dashboard/web as Vercel root
- (static hosting only,        (static files + api/assistant.js
-  no assistant)                + lib/ -> Pitch assistant)
-```
-
-- The analysis packages are independent of each other and of the website.
-- The website never fits models. It reads verified aggregate exports and does sorting, filtering, comparison and CSV export in the browser. Missing values stay null; nothing is interpolated or imputed.
-- Only summary aggregates are exported. The public build excludes raw inputs, Python sources, models and logs.
-- The hosted site sends a restrictive Content Security Policy and `nosniff`. Untrusted text is HTML-escaped and CSV output is guarded against spreadsheet-formula injection.
-
-Details: [ARCHITECTURE.md](dashboard/docs/ARCHITECTURE.md), [DATA_CONTRACT.md](dashboard/docs/DATA_CONTRACT.md), [METRICS.md](dashboard/docs/METRICS.md), [VERIFICATION.md](dashboard/docs/VERIFICATION.md), [RELEASE.md](dashboard/docs/RELEASE.md).
-
-## Quick start
-
-### Bowling analysis
-
-Python 3.10-3.13.
-
-```sh
-cd bowling-analysis
-python3 -m venv .venv && source .venv/bin/activate   # Windows: py -m venv .venv
-pip install -r requirements.txt
-# Supply a private, prepared canonical CSV restricted to the supplied fixtures.
-# Do not substitute the broad download_data.py archive for this match universe.
-python run.py --data /path/to/prepared_supplied_matches.csv
-python -m pytest tests/ -q
-```
-
-Some tests read generated outputs, so run the pipeline before the test suite. Exact package versions of an earlier run are in `environment.txt`; archive provenance is in `SOURCES.json`. Those records are not a guarantee of exact replay of the published normalized-input run. The first supplied season is training-only; no pre-2022 warm-up matches are used by the corrected entry point. `outputs/frozen_models.joblib` is a trusted local artifact; do not load joblib or pickle files from untrusted sources.
-
-### Batting analysis
-
-```sh
-cd batting-analysis
-python3 -m pip install -r requirements.txt
-mkdir -p outputs logs
-export IPL_JSON_DIR=/path/to/supplied_fixture_json    # private, exact supplied universe
-python3 data_loader.py && python3 features.py && python3 mpi_lpi_models.py \
-  && python3 stacker.py && python3 relation_analysis.py && python3 expected_runs.py \
-  && python3 ppf.py && python3 selector.py && python3 validate.py
-python3 -m pytest tests/ -q
-```
-
-Run the scripts in this order; each step reads the previous step's outputs. Dependencies are minimum supported versions, not a lockfile.
-
-### Website
-
-Requires Node.js 20+. There are no npm dependencies and no database.
-
-```sh
-cd dashboard
-python3 scripts/build_dataset.py \
-  --batting-dir /path/to/batting/outputs \
-  --bowling-dir /path/to/bowling/outputs \
-  --out private/dataset.json
-npm start                    # http://127.0.0.1:3000
-npm test
-python3 -m unittest discover -s tests -p 'test_import.py'
-```
-
-The builder needs `batsman_ppf.csv`, `shortlist_35.csv`, `top10_batsmen.csv` and `top10_role_quota.csv` from the batting run, and `all_bowlers.csv`, `top10.csv` and `delivery_scores.csv.gz` from the bowling run. Without a built dataset the site shows an import screen rather than sample data.
-
-`npm start` runs a local static server (`server.mjs`) for the site and dataset. Pitch runs on the Vercel deployment (see [Deployment](#deployment)), so the local server is static-only by design.
-
-### Deployment
-
-There are two deployment shapes. Pick by whether you want Pitch.
-
-**Static site without Pitch.** From `dashboard/`:
-
-```sh
-npm run build                # reads private/dataset.json, writes dist/
-```
-
-`dist/` contains the HTML, CSS, JavaScript, fonts, images, `dataset.json`, attribution and a `vercel.json` with the security headers, ready to deploy as the static project root with no install or build command. For Pitch, use the Vercel shape below, which adds `api/` and `lib/`.
-
-**Site with Pitch (Vercel).** The serverless function and its bundled data live under `dashboard/web/`, whose `vercel.json` declares `api/assistant.js` and bundles `lib/**` into it. Use `dashboard/web` as the Vercel project root directory:
-
-```sh
-cd dashboard
-cp /path/to/dataset.json web/dataset.json                 # gitignored
-node scripts/generate-assistant-data.mjs web/dataset.json # writes web/lib/players.json (gitignored)
-```
-
-Run the generator after the dataset exists and before each deploy, with `dashboard/` as the working directory. Then set `GEMINI_API_KEY` in the Vercel project (see [Pitch assistant](#pitch-assistant)) and deploy `dashboard/web`.
-
-Inspect `dataset.json` before deploying: it contains player-level aggregates and source-file hashes only. The static assets and player-level aggregates in the deployed root are public. `GEMINI_API_KEY` stays server-side in the Vercel project settings and is never part of the served files.
+| `analysis/final-run/` | The scripts behind the final 18 November 2026 run: pressure reblend, filtered row building, hyperfit, rating-mixture draws, posterior aggregation and score building |
+| `dashboard/` | The website: static front end, local development server, dataset builder, Pitch assistant function and tests |
+| `reports/` | The Round 1 report PDF and clean final-list CSVs |
 
 ## Methodology summary
 
-### Bowling
+1. **Read the match situation before the ball.**
+2. **Select the highest-pressure deliveries across all matches.**
+3. **Estimate the expected outcome, then measure the player's performance relative to that reference.**
+4. **Rank eligible players on their pressure performance, separately for batting and bowling.**
 
-- **Pressure signal (BoPI).** A boundary-risk model predicts the chance that the current delivery goes for a boundary, from match state, venue, batter context and phase. No bowler identity enters the expectation. XGBoost was selected on 2024 development Brier, with both candidates fitted on seasons up to 2023. Pressure deliveries are BoPI at or above the 70th percentile of the training window; normal deliveries are at or below the 55th percentile. The middle 15% is left out of the pressure-vs-normal comparison.
-- **Scoring.** Runs above expectation per legal ball: expected runs minus runs conceded, plus 20 per wicket. Rates are recency-weighted (1.0 for 2025-26, 0.6 for 2022-24).
-- **Uplift (BPF).** Pressure RAE100 minus normal RAE100. BPF_adj applies sample shrinkage: pressure balls over pressure balls plus 60. A 500-resample match-cluster bootstrap gives the 95% interval.
-- **Selection funnel.** At least 60 pressure and 200 normal legal balls, active in 2025-26, a shortlist of 35 on combined normal and overall skill, non-negative pressure RAE100, then the top 10 by BPF_adj.
-- **Coverage.** 687 fixtures are scored from 2023-26 (158,496 deliveries); the 180 fixtures of the 2022 season are training-only and carry no out-of-sample scores. Exclusions are logged in the outputs.
+### Pressure score
 
-### Batting
-
-- **Pressure index (BPI).** 100 x P(dot ball or dismissal) from pre-ball features, via nested grouped cross-validation with a stacked estimator. No ball is scored by a model that saw its match.
-- **Expectation.** Situation-only expected runs and dismissal. The wicket penalty is the expected runs the incoming batter adds from that state.
-- **Pressure buckets.** Pressure is the top 30% of delivery BPI (70th percentile) and normal the bottom 55% (55th percentile), computed over all supplied 2022-26 matches; the middle 15% is left out. (The temporal diagnostic below is separate: it restricts fitting to 2022-24 and scores 2025-26 frozen.)
-- **PPF.** Pressure RAE per 100 balls minus normal RAE per 100 balls, with recency weights (1.0 for 2025-26, 0.6 for 2022-24), empirical-Bayes shrinkage, and 1000-resample match-bootstrap 90% intervals.
-- **Selection funnel.** At least 60 pressure balls and 200 normal balls, active in 2025 or 2026, shortlist of 35, analysis top 10, and a role-balanced 3 openers / 4 middle order / 3 finishers variant.
-
-## Key formulas
-
-**Batting.** The pressure index is the modeled chance that the current legal ball is a dot or a striker dismissal, built from pre-ball information only:
-
-$$\mathrm{BPI} = 100 \times P(\text{dot ball or striker dismissal} \mid \text{pre-ball state})$$
-
-Runs above expectation per ball, where $\pi(\text{over}, \text{wickets})$ is the expected runs the incoming batter adds from that state:
-
-$$\mathrm{RAE} = \big(r - \mathrm{E}[r \mid \text{state}]\big) - \pi(\text{over}, \text{wickets}) \times \big(d - \mathrm{E}[d \mid \text{state}]\big)$$
-
-The pressure performance factor and its empirical-Bayes-shrunk uplift, with shrinkage weight $\lambda_i$:
-
-$$\mathrm{PPF} = \mathrm{RAE}_{100}^{\mathrm{pressure}} - \mathrm{RAE}_{100}^{\mathrm{normal}}, \qquad \mathrm{uplift}_i = \lambda_i \times \mathrm{PPF}_i, \qquad \lambda_i = \frac{\sigma^2_{\mathrm{between}}}{\sigma^2_{\mathrm{between}} + \sigma^2_{\mathrm{within},\,i}}$$
-
-**Bowling.** Runs above expectation per legal ball, with wicket value $v = 20$ (sensitivity at 10 and 30 reported):
-
-$$\mathrm{RAE}_{\mathrm{bowl}} = \mathrm{E}[R \mid \text{state}] - \text{runs conceded} + v \times \text{wicket}$$
-
-Pressure states come from BoPI quantile cutoffs fitted on the training window: pressure is the top 30% of predicted boundary risk (70th percentile), normal the bottom 55% (55th percentile). The published uplift applies sample shrinkage, $\mathrm{BPF\_adj} = \frac{b_p}{b_p + 60} \times \big(\mathrm{RAE}_{100}^{\mathrm{pressure}} - \mathrm{RAE}_{100}^{\mathrm{normal}}\big)$, with a 500-resample match-cluster bootstrap interval.
-
-## Validation
-
-- Temporal holdout: fitting is restricted to earlier seasons, with 2025-26 scored frozen. Bowling boundary model: held-out AUC 0.600, Brier 0.150; expected-runs holdout MAE 1.30 runs per delivery.
-- Consistency across matches, measured. Bowling BPF rank correlation is 0.05 across alternate matches (361 bowlers) and -0.01 early versus late (227). Batting split-half uplift correlation is -0.00 across all batsmen (406) and -0.02 within the eligible cohort (130). These values are weak, so fine rank differences are approximate and exact placings depend on the method's cutoffs, floors and selection rules.
-- Sensitivity: a wicket value of 10 instead of 20 keeps 7 of the 10 bowling names; a value of 30 keeps 9 of 10. Pressure-cutoff choices move individual placings.
-- Match-cluster bootstrap intervals (500 resamples), conditional on the fitted models and cutoffs; they cover sampling noise, not model or cutoff uncertainty.
-- Leakage controls: pre-ball features, match-grouped batting out-of-fold scoring and season-ordered bowling scoring, with fixed seeds. Exact published replay remains limited by the missing normalized input described below.
-- Website: unit tests for selection and ordering, server tests, importer tests, a dataset integrity script and optional Playwright browser checks.
-
-## Pitch assistant
-
-Pitch is the on-site Q&A assistant (`dashboard/web/assistant.js`, with a Vercel serverless function in `dashboard/web/api/assistant.js`). It answers questions about the rankings and their factors from the site's methodology text and player summary rows, with off-topic and prompt-injection guards.
-
-Environment variables, set in the hosting project and never committed:
-
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `GEMINI_API_KEY` | Yes | Gemini API key |
-| `ASSISTANT_MODELS` | No | Comma-separated fallback model list |
-| `ASSISTANT_DAILY_CAP` | No | Soft daily answer cap, default 400. Counted per warm serverless instance, so it is not a global or hard limit. A per-client limit of 8 requests/minute applies on the same basis |
-
-`web/lib/knowledge.json` (methodology text) is committed. `web/lib/players.json` and `web/dataset.json` are generated and gitignored. Regenerate the assistant data before each deploy, from `dashboard/` (see [Deployment](#deployment)):
-
-```sh
-node scripts/generate-assistant-data.mjs web/dataset.json
+```
+P = 0.30 x leverage + 0.25 x collapse risk + 0.25 x required-rate stress + 0.20 x match balance
 ```
 
-Without `players.json` the site is unaffected and Pitch answers methodology questions only.
+Leverage is how much the next ball can change the win chance; collapse risk reads recent wickets; required-rate stress compares the chase demand with what is sustainable at the venue and stage; match balance rises the closer the match is. The weights are a declared starting choice. A delivery is high pressure when its pre-ball score reaches 0.507, which keeps the top 35% of deliveries (35,922 from first innings, 33,802 from second).
 
-## Data and attribution
+### Performance measure A
 
-- Ball-by-ball data: supplied CSV export of [Cricsheet](https://cricsheet.org/downloads/) matches (IPL, T20I and Asia Cup tournaments, 2022-26), under the [Open Data Commons Attribution License](https://opendatacommons.org/licenses/by/1-0/) (license copy in `bowling-analysis/data/Cricsheet_LICENSE.txt`). Rankings are based on the matches in the supplied CSV, using the ranking method described above.
-- Bowling pace/spin reporting tags: [aadi-jn/indian-premier-league](https://github.com/aadi-jn/indian-premier-league/blob/main/docs/data_dictionary.md), joined by registry ID and used for reporting views only.
-- Coverage: 867 playable fixtures from 2022-26. Bowling scores 687 fixtures from 2023-26 (158,496 deliveries), with the 180 fixtures of the 2022 season used for training only; the 16 fixtures with no play and all super overs are excluded. Rain-affected chases are included, scored against the revised target and the balls allotted at each delivery.
-- Input preparation: the published lists were scored from a normalised ball-by-ball table. It maps each supplied-CSV fixture to Cricsheet outcomes where available (785 fixtures), takes the remaining 82 from the supplied extras with recorded corrections, and applies a per-match record of revised targets and allotted balls for rain-affected chases. The preparation scripts depend on the organiser files and are not part of this repository. The corrected code accepts explicit target-in-force and allotted-ball context. Revised chases without per-delivery context fail clearly rather than borrowing a final target or silently disappearing. Batting JSON delivery records can carry `target_in_force` and `innings_balls`; bowling canonical CSV can carry the same fields, with `target_in_force` mapped to its target feature. Standard JSON paths are not a substitute for the missing private normalized preparation. These corrections were tested with synthetic fixtures, not by rerunning or checking the published data. A replay from a reconstructed copy of that table gives pressure cutoffs close to, but not identical with, the published ones (batting 42.03 vs 42.05, bowling 19.22 vs 19.21), so the published figures are not claimed to be exactly reproducible from this repository.
-- Raw match data, trained parquet files and generated datasets are not stored in the repository. Team labels are historical records, not current contracts or auction eligibility. See [`dashboard/DATA_ATTRIBUTION.txt`](dashboard/DATA_ATTRIBUTION.txt).
+- **Batting:** A is wicket-aware adjusted run value: runs scored plus the change in expected remaining team runs, compared with what an average batter was expected to produce in the same situations and bowling contexts.
+- **Bowling:** A is the reference expectation minus the batting run value conceded, using the same wicket-aware frame from the bowling side. Both innings are pooled.
+
+High-pressure A sets the ranking. Player estimates use a 365-day half-life recency weighting, chosen in advance, and partial pooling combines individual evidence with the population pattern.
+
+### The score
+
+```
+Score = 100 x Phi(z)
+```
+
+z compares estimated A with the role average in population standard deviations, and Phi is the standard Normal curve. A score of 50 represents average estimated ability on this scale; batting and bowling carry separate scales.
+
+### Selection and uncertainty
+
+Every identity in the modelled pool (838 batters, 572 bowlers) is scored. The final lists cover the 14 batters and 16 bowlers with substantial high-pressure evidence, and the report presents the top 10 of each discipline. Each score carries an 80% interval from the rating-mixture model, conditional on the fitted models, settings and reference mix. The intervals are wide (about 77 points for top-10 batters and 75 for top-10 bowlers), so the leaders are best read as a group. A separate strict consistency label combines above-reference ability, precision and exposure; it remains unmet across both final lists.
+
+## Website
+
+The site is static HTML, CSS and JavaScript with SVG charts and no build dependencies. See [dashboard/README.md](dashboard/README.md) for local development, the dataset contract and deployment.
+
+## Data
+
+Match data: 843 completed matches from the competition-supplied match list, 2022-2026. Ball-by-ball records were recovered for those fixtures. The competition inputs and the recovered ball-by-ball records are not redistributed in this repository; `analysis/final-run/README.md` describes the inputs each pipeline stage expects.
+
+The analysis is historical reporting of recorded 2022-2026 performance under a stated pressure definition. The squad planner is a practice and tracking tool and does not record or place real bids.
